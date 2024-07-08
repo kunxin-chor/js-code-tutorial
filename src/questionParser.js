@@ -1,5 +1,3 @@
-import { marked } from 'marked';
-
 const fetchMarkdownContent = async (url) => {
   const response = await fetch(url);
   if (!response.ok) {
@@ -22,11 +20,9 @@ const parseMarkdown = (markdown) => {
 
       switch (sectionName) {
         case 'title':
-          question.title = content;
-          break;
         case 'description':
         case 'explanation':
-          question[sectionName] = marked.parse(content);
+          question[sectionName] = content;
           break;
         case 'initialcode':
           question.initialCode = content;
