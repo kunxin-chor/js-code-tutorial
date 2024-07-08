@@ -2,18 +2,6 @@ import React, { useState, useEffect } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import ReactMarkdown from 'react-markdown';
 
-const formatOutput = (output) => {
-  if (typeof output === 'string') {
-    return output.split('\n').map((line, index) => (
-      <React.Fragment key={index}>
-        {line}
-        {index < output.split('\n').length - 1 && <br />}
-      </React.Fragment>
-    ));
-  }
-  return String(output);
-};
-
 const questionsData = [
   {
     id: 1,
@@ -24,7 +12,8 @@ const questionsData = [
       { func: "add(-1, 1)", expected: 0, type: "return" },
       { func: "add(0, 0)", expected: 0, type: "return" },
     ],
-    explanation: "The `add` function should take two parameters and return their sum."
+    explanation: "The `add` function should take two parameters and return their sum.",
+    solution: "function add(a, b) {\n  return a + b;\n}"
   },
   {
     id: 2,
@@ -35,7 +24,13 @@ const questionsData = [
       { func: "printPyramid(1)", expected: "*", type: "console" },
       { func: "printPyramid(5)", expected: "    *\n   ***\n  *****\n *******\n*********", type: "console" },
     ],
-    explanation: "The `printPyramid` function should use console.log to print a pyramid of asterisks with the given number of rows."
+    explanation: "The `printPyramid` function should use console.log to print a pyramid of asterisks with the given number of rows.",
+    solution: `function printPyramid(rows) {
+  for (let i = 1; i <= rows; i++) {
+    let row = ' '.repeat(rows - i) + '*'.repeat(2 * i - 1);
+    console.log(row);
+  }
+}`
   }
 ];
 
@@ -44,14 +39,20 @@ const App = () => {
   const [code, setCode] = useState('');
   const [testResults, setTestResults] = useState([]);
   const [allPassing, setAllPassing] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+  const [showSolution, setShowSolution] = useState(false);
+  const [solutionOutput, setSolutionOutput] = useState([]);
 
   useEffect(() => {
     setCode(questionsData[currentQuestion].initialCode);
     setTestResults(questionsData[currentQuestion].testCases.map(tc => ({...tc, result: null, passed: null})));
     setAllPassing(false);
+    setAttempts(0);
+    setShowSolution(false);
+    setSolutionOutput([]);
   }, [currentQuestion]);
 
-  const runCode = () => {
+  const runCode = (codeToRun) => {
     const results = questionsData[currentQuestion].testCases.map(({ func, expected, type }) => {
       try {
         let result;
@@ -62,14 +63,14 @@ const App = () => {
 
         if (type === "console") {
           const testFunction = new Function('console', `
-            ${code}
+            ${codeToRun}
             ${func};
           `);
           testFunction({ log: mockConsoleLog });
           result = consoleOutput.join('\n');
         } else {
           const testFunction = new Function(`
-            ${code}
+            ${codeToRun}
             return ${func};
           `);
           result = testFunction();
@@ -82,29 +83,24 @@ const App = () => {
       }
     });
 
+    return results;
+  };
+
+  const handleRunCode = () => {
+    const results = runCode(code);
     setTestResults(results);
     setAllPassing(results.every(r => r.passed));
+    setAttempts(attempts + 1);
+
+    if (results.every(r => r.passed) || attempts >= 2) {
+      const solutionResults = runCode(questionsData[currentQuestion].solution);
+      setSolutionOutput(solutionResults);
+    }
   };
 
   const compareResults = (result, expected) => {
     if (typeof result === 'string' && typeof expected === 'string') {
-      // Split both strings into arrays of lines
-      const resultLines = result.split('\n');
-      const expectedLines = expected.split('\n');
-
-      // Check if they have the same number of lines
-      if (resultLines.length !== expectedLines.length) {
-        return false;
-      }
-
-      // Compare each line
-      for (let i = 0; i < resultLines.length; i++) {
-        if (resultLines[i] !== expectedLines[i]) {
-          return false;
-        }
-      }
-
-      return true;
+      return result.trim() === expected.trim();
     } else {
       return result === expected;
     }
@@ -116,12 +112,22 @@ const App = () => {
     }
   };
 
-  const editorDidMount = (editor, monaco) => {
-    editor.focus();
+  const handleViewSolution = () => {
+    setShowSolution(true);
+    const solutionResults = runCode(questionsData[currentQuestion].solution);
+    setSolutionOutput(solutionResults);
   };
 
-  const onChange = (newValue, e) => {
-    setCode(newValue);
+  const formatOutput = (output) => {
+    if (typeof output === 'string') {
+      return output.split('\n').map((line, index) => (
+        <React.Fragment key={index}>
+          {line}
+          {index < output.split('\n').length - 1 && <br />}
+        </React.Fragment>
+      ));
+    }
+    return String(output);
   };
 
   return (
@@ -132,13 +138,48 @@ const App = () => {
       </div>
 
       <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
-        <h2>Test Cases</h2>
+        <h2>Your Code</h2>
+        <MonacoEditor
+          width="100%"
+          height="200"
+          language="javascript"
+          theme="vs-dark"
+          value={code}
+          options={{
+            selectOnLineNumbers: true,
+            roundedSelection: false,
+            readOnly: false,
+            cursorStyle: 'line',
+            automaticLayout: true,
+          }}
+          onChange={setCode}
+        />
+      </div>
+
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={handleRunCode} style={{ marginRight: '10px', padding: '10px', cursor: 'pointer' }}>Run Code</button>
+        {(allPassing || attempts >= 3) && !showSolution && (
+          <button onClick={handleViewSolution} style={{ padding: '10px', cursor: 'pointer' }}>View Solution</button>
+        )}
+        {allPassing && <button onClick={nextQuestion} style={{ marginLeft: '10px', padding: '10px', cursor: 'pointer' }}>Next Question</button>}
+      </div>
+
+      {showSolution && (
+        <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
+          <h2>Solution</h2>
+          <pre style={preStyle}>{questionsData[currentQuestion].solution}</pre>
+        </div>
+      )}
+
+      <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
+        <h2>Test Results</h2>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
               <th style={tableHeaderStyle}>Test Case</th>
               <th style={tableHeaderStyle}>Expected Result</th>
               <th style={tableHeaderStyle}>Your Result</th>
+              <th style={tableHeaderStyle}>Solution Result</th>
               <th style={tableHeaderStyle}>Status</th>
             </tr>
           </thead>
@@ -155,6 +196,11 @@ const App = () => {
                   </pre>
                 </td>
                 <td style={tableCellStyle}>
+                  <pre style={preStyle}>
+                    {solutionOutput[index] ? formatOutput(solutionOutput[index].result) : 'Not shown'}
+                  </pre>
+                </td>
+                <td style={tableCellStyle}>
                   {result.passed === null ? 'Not run yet' : 
                    result.passed ? '✅ PASS' : '❌ FAIL'}
                 </td>
@@ -162,31 +208,6 @@ const App = () => {
             ))}
           </tbody>
         </table>
-      </div>
-
-      <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
-        <h2>Code Editor</h2>
-        <MonacoEditor
-          width="100%"
-          height="300"
-          language="javascript"
-          theme="vs-dark"
-          value={code}
-          options={{
-            selectOnLineNumbers: true,
-            roundedSelection: false,
-            readOnly: false,
-            cursorStyle: 'line',
-            automaticLayout: true,
-          }}
-          onChange={onChange}
-          editorDidMount={editorDidMount}
-        />
-      </div>
-
-      <div style={{ marginBottom: '20px' }}>
-        <button onClick={runCode} style={{ marginRight: '10px', padding: '10px', cursor: 'pointer' }}>Run Code</button>
-        {allPassing && <button onClick={nextQuestion} style={{ padding: '10px', cursor: 'pointer' }}>Next Question</button>}
       </div>
 
       <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
