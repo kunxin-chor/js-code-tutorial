@@ -105,12 +105,7 @@ const App = () => {
 
   const formatOutput = (output) => {
     if (typeof output === 'string') {
-      return output.split('\n').map((line, index) => (
-        <React.Fragment key={index}>
-          {line}
-          {index < output.split('\n').length - 1 && <br />}
-        </React.Fragment>
-      ));
+      return output.replace(/\\n/g, '\n').replace(/\\"/g, '"');
     }
     return String(output);
   };
@@ -175,9 +170,30 @@ const App = () => {
                 {testResults.map((result, index) => (
                   <tr key={index}>
                     <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{result.func}</td>
-                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{JSON.stringify(result.expected)}</td>
-                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{result.result !== null ? JSON.stringify(result.result) : 'Not run yet'}</td>
-                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{solutionOutput[index] ? JSON.stringify(solutionOutput[index].result) : 'Not shown'}</td>
+                    <td style={{ 
+                      padding: '10px', 
+                      borderBottom: '1px solid #ddd', 
+                      fontFamily: 'monospace', 
+                      whiteSpace: 'pre-wrap' 
+                    }}>
+                      {formatOutput(result.expected)}
+                    </td>
+                    <td style={{ 
+                      padding: '10px', 
+                      borderBottom: '1px solid #ddd', 
+                      fontFamily: 'monospace', 
+                      whiteSpace: 'pre-wrap' 
+                    }}>
+                      {result.result !== null ? formatOutput(result.result) : 'Not run yet'}
+                    </td>
+                    <td style={{ 
+                      padding: '10px', 
+                      borderBottom: '1px solid #ddd', 
+                      fontFamily: 'monospace', 
+                      whiteSpace: 'pre-wrap' 
+                    }}>
+                      {solutionOutput[index] ? formatOutput(solutionOutput[index].result) : 'Not shown'}
+                    </td>
                     <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
                       {result.passed === null ? 'Not run yet' : 
                        result.passed ? '✅ PASS' : '❌ FAIL'}
@@ -188,10 +204,52 @@ const App = () => {
             </table>
           </div>
 
-          <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '15px', backgroundColor: '#f9f9f9' }}>
+          <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px', backgroundColor: '#f9f9f9' }}>
             <h3 style={{ color: '#333' }}>Explanation</h3>
             <ReactMarkdown>{questionsData[currentQuestion].explanation}</ReactMarkdown>
           </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+            <button
+              onClick={handleViewSolution}
+              style={{
+                padding: '10px 20px',
+                fontSize: '16px',
+                backgroundColor: '#2196F3',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer'
+              }}
+            >
+              Show Solution
+            </button>
+            <button
+              onClick={nextQuestion}
+              disabled={currentQuestion >= questionsData.length - 1}
+              style={{
+                padding: '10px 20px',
+                fontSize: '16px',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                opacity: currentQuestion >= questionsData.length - 1 ? 0.5 : 1
+              }}
+            >
+              Next Question
+            </button>
+          </div>
+
+          {showSolution && (
+            <div style={{ marginTop: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
+              <h3 style={{ color: '#333' }}>Solution</h3>
+              <pre style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: '10px' }}>
+                {questionsData[currentQuestion].solution}
+              </pre>
+            </div>
+          )}
         </>
       ) : (
         <div>Loading questions...</div>
