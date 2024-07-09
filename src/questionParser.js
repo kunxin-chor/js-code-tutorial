@@ -38,10 +38,22 @@ const parseQuestionContent = (content) => {
   return question;
 };
 
+import { simpleChecksum } from './utils/hashUtils';
+
 export const getManifest = async () => {
   console.log('Fetching manifest from:', MANIFEST_URL);
   const manifestContent = await fetchContent(MANIFEST_URL);
-  return JSON.parse(manifestContent);
+  const manifest = JSON.parse(manifestContent);
+
+  manifest.categories.forEach((category) => {
+    category.questions.forEach((question) => {
+      // Create a consistent ID based on the category name and question URL
+      const idSource = `${category.name}_${question.url}`;
+      question.id = simpleChecksum(idSource);
+    });
+  });
+
+  return manifest;
 };
 
 export const loadQuestion = async (questionPath) => {

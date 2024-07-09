@@ -3,7 +3,7 @@ import { getManifest, loadQuestion } from '../questionParser';
 
 export const useQuestionManager = () => {
   const [manifest, setManifest] = useState(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -12,52 +12,57 @@ export const useQuestionManager = () => {
       const manifestData = await getManifest();
       setManifest(manifestData);
       setLoading(false);
+
+      // Load the first question automatically
+      if (manifestData.categories.length > 0 && manifestData.categories[0].questions.length > 0) {
+        const firstQuestionId = manifestData.categories[0].questions[0].id;
+        loadQuestionById(firstQuestionId);
+      }
     };
     fetchManifest();
   }, []);
 
-  const loadQuestionByIndex = useCallback(async (index) => {
+  const loadQuestionById = useCallback(async (questionId) => {
     if (!manifest) return;
 
-    setLoading(true);
-    const flatQuestions = manifest.categories.flatMap(category => 
-      category.questions.map(q => ({ ...q, category: category.name }))
-    );
-    
-    if (index >= 0 && index < flatQuestions.length) {
-      const questionInfo = flatQuestions[index];
-      const questionData = await loadQuestion(questionInfo.url);
-      setCurrentQuestion({ ...questionData, category: questionInfo.category });
-      setCurrentQuestionIndex(index);
+    const question = manifest.categories
+      .flatMap(category => category.questions)
+      .find(q => q.id === questionId);
+
+    if (!question) {
+      console.error(`Question with id ${questionId} not found`);
+      return null;
     }
-    setLoading(false);
+
+    const questionContent = await loadQuestion(question.url);
+    setCurrentQuestion({ ...question, ...questionContent });
+    setCurrentQuestionId(questionId);
   }, [manifest]);
 
-  useEffect(() => {
-    if (manifest) {
-      loadQuestionByIndex(0);
-    }
-  }, [manifest, loadQuestionByIndex]);
-
   const nextQuestion = useCallback(() => {
-    const totalQuestions = manifest.categories.reduce((sum, category) => sum + category.questions.length, 0);
-    if (currentQuestionIndex < totalQuestions - 1) {
-      loadQuestionByIndex(currentQuestionIndex + 1);
-    }
-  }, [currentQuestionIndex, manifest, loadQuestionByIndex]);
+    if (!manifest || !currentQuestionId) return;
 
-  const selectQuestion = useCallback((index) => {
-    loadQuestionByIndex(index);
-  }, [loadQuestionByIndex]);
+    const allQuestions = manifest.categories.flatMap(category => category.questions);
+    const currentIndex = allQuestions.findIndex(q => q.id === currentQuestionId);
+    
+    if (currentIndex < allQuestions.length - 1) {
+      const nextQuestionId = allQuestions[currentIndex + 1].id;
+      loadQuestionById(nextQuestionId);
+    }
+  }, [manifest, currentQuestionId, loadQuestionById]);
+
+  const selectQuestion = useCallback((questionId) => {
+    loadQuestionById(questionId);
+  }, [loadQuestionById]);
 
   const categories = manifest ? manifest.categories.map(c => c.name) : [];
   const isLastQuestion = manifest 
-    ? currentQuestionIndex >= manifest.categories.reduce((sum, category) => sum + category.questions.length, 0) - 1
+    ? currentQuestionId === manifest.categories.flatMap(c => c.questions).slice(-1)[0].id
     : false;
 
   return {
     currentQuestion,
-    currentQuestionIndex,
+    currentQuestionId,
     categories,
     nextQuestion,
     selectQuestion,

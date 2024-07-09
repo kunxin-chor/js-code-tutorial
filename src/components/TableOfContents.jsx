@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
-const TableOfContents = ({ manifest, currentQuestionIndex, completedQuestions, onSelectQuestion }) => {
+const TableOfContents = ({ manifest, currentQuestionId, completedQuestions, selectQuestion }) => {
   const [expandedCategories, setExpandedCategories] = useState({});
 
   if (!manifest) return null;
@@ -24,7 +24,7 @@ const TableOfContents = ({ manifest, currentQuestionIndex, completedQuestions, o
       backgroundColor: '#f5f5f5'
     }}>
       <h2 style={{ marginBottom: '20px' }}>Questions</h2>
-      {manifest.categories.map((category, categoryIndex) => (
+      {manifest.categories.map((category) => (
         <div key={category.name}>
           <h3 
             onClick={() => toggleCategory(category.name)}
@@ -38,30 +38,27 @@ const TableOfContents = ({ manifest, currentQuestionIndex, completedQuestions, o
           </h3>
           {expandedCategories[category.name] && (
             <ul style={{ listStyleType: 'none', padding: 0 }}>
-              {category.questions.map((question, questionIndex) => {
-                const globalIndex = manifest.categories.slice(0, categoryIndex).reduce((sum, c) => sum + c.questions.length, 0) + questionIndex;
-                return (
-                  <li 
-                    key={question.url}
-                    style={{
-                      padding: '10px',
-                      marginBottom: '10px',
-                      backgroundColor: globalIndex === currentQuestionIndex ? '#e0e0e0' : 'white',
-                      borderRadius: '5px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between'
-                    }}
-                    onClick={() => onSelectQuestion(globalIndex)}
-                  >
-                    <span>{question.title || 'Untitled Question'}</span>
-                    {completedQuestions.includes(globalIndex) && (
-                      <span style={{ color: 'green' }}>✓</span>
-                    )}
-                  </li>
-                );
-              })}
+              {category.questions.map((question) => (
+                <li 
+                  key={question.id}
+                  style={{
+                    padding: '10px',
+                    marginBottom: '10px',
+                    backgroundColor: question.id === currentQuestionId ? '#e0e0e0' : 'white',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                  onClick={() => selectQuestion(question.id)}
+                >
+                  <span>{question.title || 'Untitled Question'}</span>
+                  {completedQuestions.includes(question.id) && (
+                    <span style={{ color: 'green' }}>✓</span>
+                  )}
+                </li>
+              ))}
             </ul>
           )}
         </div>

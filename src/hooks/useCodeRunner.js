@@ -7,13 +7,13 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
   const [allPassing, setAllPassing] = useState(false);
   const [attempts, setAttempts] = useState(0);
 
-  const runUserCode = useCallback((testCases = []) => {
+  const runUserCode = useCallback((testCases = [], questionId) => {
     if (!code || testCases.length === 0) {
       console.warn('No code or test cases provided');
       return { results: [], passing: false };
     }
 
-    const results = runCode(code, testCases);
+    const results = runCode(code, testCases, questionId);
     setTestResults(results);
     const passing = results.every(r => r.passed);
     setAllPassing(passing);

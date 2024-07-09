@@ -16,7 +16,7 @@ const App = () => {
 
   const {
     currentQuestion,
-    currentQuestionIndex,
+    currentQuestionId,
     categories,
     nextQuestion,
     selectQuestion,
@@ -44,7 +44,7 @@ const App = () => {
 
   const initializeQuestion = useCallback(() => {
     if (currentQuestion) {
-      const questionProgress = userProgress[currentQuestionIndex] || {};
+      const questionProgress = userProgress[currentQuestion.id] || {};
       const initialCode = questionProgress.code || currentQuestion.initialCode;
       const initialTestResults = questionProgress.testResults || 
         currentQuestion.testCases.map(tc => ({ ...tc, result: null, passed: null }));
@@ -52,7 +52,7 @@ const App = () => {
       resetQuestion(initialCode, currentQuestion.testCases);
       setTestResults(initialTestResults);
     }
-  }, [currentQuestion, currentQuestionIndex, userProgress, resetQuestion, setTestResults]);
+  }, [currentQuestion, userProgress, resetQuestion, setTestResults]);
 
   useEffect(() => {
     initializeQuestion();
@@ -60,46 +60,46 @@ const App = () => {
 
   const handleRunCode = useCallback(() => {
     if (!currentQuestion) return;
-    const { results, passing } = runUserCode(currentQuestion.testCases);
-    updateProgress(currentQuestionIndex, {
+    const { results, passing } = runUserCode(currentQuestion.testCases, currentQuestion.id);
+    updateProgress(currentQuestion.id, {
       code,
       completed: passing,
       attempts: attempts + 1,
       lastAttemptDate: new Date().toISOString(),
       testResults: results,
     });
-  }, [currentQuestion, runUserCode, updateProgress, currentQuestionIndex, code, attempts]);
+  }, [currentQuestion, runUserCode, updateProgress, code, attempts]);
 
   const handleViewSolution = useCallback(() => {
     setShowSolution(true);
-    updateProgress(currentQuestionIndex, { viewedSolution: true });
-  }, [updateProgress, currentQuestionIndex]);
+    updateProgress(currentQuestion.id, { viewedSolution: true });
+  }, [updateProgress, currentQuestion]);
 
   const handleResetQuestion = useCallback(() => {
     if (!currentQuestion) return;
     resetQuestion(currentQuestion.initialCode, currentQuestion.testCases);
     setTestResults(currentQuestion.testCases.map(tc => ({ ...tc, result: null, passed: null })));
-    updateProgress(currentQuestionIndex, {
+    updateProgress(currentQuestion.id, {
       code: currentQuestion.initialCode,
       completed: false,
       attempts: 0,
       testResults: currentQuestion.testCases.map(tc => ({ ...tc, result: null, passed: null })),
       viewedSolution: false,
     });
-  }, [currentQuestion, resetQuestion, setTestResults, updateProgress, currentQuestionIndex]);
+  }, [currentQuestion, resetQuestion, setTestResults, updateProgress]);
 
   useEffect(() => {
     setShowSolution(false);
-  }, [currentQuestionIndex]);
+  }, [currentQuestion]);
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       {loading && <LoadingOverlay />}
       <TableOfContents 
         manifest={manifest}
-        currentQuestionIndex={currentQuestionIndex}
+        currentQuestionId={currentQuestionId}
         completedQuestions={getCompletedQuestions()}
-        onSelectQuestion={selectQuestion}
+        selectQuestion={selectQuestion}
       />
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
         {currentQuestion && (

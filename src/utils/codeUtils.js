@@ -1,4 +1,4 @@
-const runCode = (code, testCases) => {
+const runCode = (code, testCases, questionId) => {
     return testCases.map(({ func, expected, type, prompts }) => {
       try {
         let result;
