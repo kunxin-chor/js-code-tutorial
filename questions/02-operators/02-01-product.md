@@ -16,6 +16,11 @@ The function should:
 
 If the user enters "2" and "5", the output should be: `10`
 
+### Hints
+
+- Remember that `prompt` returns a string, so you need to convert it to a number
+- Consider how to perform multiplication in JavaScript
+- Think about how to format the output correctly
 
 ---INITIALCODE---
 function calculateProduct() {
@@ -44,6 +49,18 @@ function calculateProduct() {
   }
 ]
 
+---WALKTHROUGH---
+Here's a step-by-step guide to solve this problem:
+
+1. Use `prompt` twice to get two numbers from the user.
+2. Convert the inputs to numbers using `Number()` or the `+` operator.
+3. Multiply the two numbers using the `*` operator.
+4. Use `console.log` to print the final result.
+
+Additional tips:
+- Make sure to convert the input to numbers before multiplication.
+- You only need one `console.log` statement at the end to display the result.
+
 ---EXPLANATION---
 The `calculateProduct` function demonstrates how to use the `prompt` function to get input from the user, perform a calculation, and then output the result. Here's how it works:
 
@@ -56,13 +73,6 @@ This exercise helps practice:
 - Converting strings to numbers
 - Basic arithmetic operations
 - Output formatting
-
-### Hints
-
-- Remember that `prompt` returns a string, so you need to convert it to a number
-- You can use the `Number()` function or the unary plus operator (`+`) to convert strings to numbers
-- Multiply the two numbers using the `*` operator
-- Use only one `console.log` statement to output the final result
 
 ---SOLUTION---
 function calculateProduct() {

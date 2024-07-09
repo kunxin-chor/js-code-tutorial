@@ -7,12 +7,17 @@ import ActionButtons from './components/ActionButtons';
 import SolutionDisplay from './components/SolutionDisplay';
 import TableOfContents from './components/TableOfContents';
 import LoadingOverlay from './components/LoadingOverlay';
+import HintsDisplay from './components/HintsDisplay';
+import WalkthroughDisplay from './components/WalkthroughDisplay';
 import { useQuestionManager } from './hooks/useQuestionManager';
 import { useProgressTracker } from './hooks/useProgressTracker';
 import { useCodeRunner } from './hooks/useCodeRunner';
 
 const App = () => {
   const [showSolution, setShowSolution] = useState(false);
+  const [showHints, setShowHints] = useState(false);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
+  const [codeHasRun, setCodeHasRun] = useState(false);
 
   const {
     currentQuestion,
@@ -42,33 +47,48 @@ const App = () => {
     resetQuestion,
   } = useCodeRunner();
 
-  const initializeQuestion = useCallback(() => {
-    if (currentQuestion) {
+  useEffect(() => {
+    if (currentQuestion && !codeHasRun) {
       const questionProgress = userProgress[currentQuestion.id] || {};
       const initialCode = questionProgress.code || currentQuestion.initialCode;
-      const initialTestResults = questionProgress.testResults || 
-        currentQuestion.testCases.map(tc => ({ ...tc, result: null, passed: null }));
       
       resetQuestion(initialCode, currentQuestion.testCases);
-      setTestResults(initialTestResults);
+      
+      setTestResults(currentQuestion.testCases.map(tc => ({
+        ...tc,
+        result: null,
+        passed: null
+      })));
+      
+      setCodeHasRun(false);
     }
-  }, [currentQuestion, userProgress, resetQuestion, setTestResults]);
-
-  useEffect(() => {
-    initializeQuestion();
-  }, [initializeQuestion]);
+  }, [currentQuestion, userProgress, resetQuestion, codeHasRun]);
 
   const handleRunCode = useCallback(() => {
     if (!currentQuestion) return;
     const { results, passing } = runUserCode(currentQuestion.testCases, currentQuestion.id);
+    const updatedResults = currentQuestion.testCases.map(testCase => {
+      const result = results.find(r => r.id === testCase.id);
+      return {
+        ...testCase,
+        result: result ? result.result : null,
+        passed: result ? result.passed : null,
+      };
+    });
+    
+    console.log('Updated test results:', updatedResults);
+    
+    setTestResults(updatedResults);
+    setCodeHasRun(true);
+    
     const updatedProgress = {
       code,
       completed: passing,
       attempts: attempts + 1,
       lastAttemptDate: new Date().toISOString(),
-      testResults: results,
+      testResults: updatedResults,
     };
-    console.log('Updating progress for question:', currentQuestion.id, updatedProgress);
+    
     updateProgress(currentQuestion.id, updatedProgress);
   }, [currentQuestion, runUserCode, updateProgress, code, attempts]);
 
@@ -81,6 +101,7 @@ const App = () => {
     if (!currentQuestion) return;
     resetQuestion(currentQuestion.initialCode, currentQuestion.testCases);
     setTestResults(currentQuestion.testCases.map(tc => ({ ...tc, result: null, passed: null })));
+    setCodeHasRun(false);
     updateProgress(currentQuestion.id, {
       code: currentQuestion.initialCode,
       completed: false,
@@ -90,13 +111,19 @@ const App = () => {
     });
   }, [currentQuestion, resetQuestion, setTestResults, updateProgress]);
 
-  useEffect(() => {
-    setShowSolution(false);
-  }, [currentQuestion]);
+  const toggleHints = useCallback(() => {
+    setShowHints(prev => !prev);
+  }, []);
+
+  const toggleWalkthrough = useCallback(() => {
+    setShowWalkthrough(prev => !prev);
+  }, []);
 
   useEffect(() => {
-    console.log('Current userProgress:', userProgress);
-  }, [userProgress]);
+    setShowSolution(false);
+    setShowHints(false);
+    setShowWalkthrough(false);
+  }, [currentQuestion]);
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
@@ -117,9 +144,13 @@ const App = () => {
               onViewSolution={handleViewSolution}
               onNextQuestion={nextQuestion}
               onResetQuestion={handleResetQuestion}
+              onToggleHints={toggleHints}
+              onToggleWalkthrough={toggleWalkthrough}
               isLastQuestion={isLastQuestion}
             />
             <TestResults testResults={testResults} />
+            {showHints && <HintsDisplay hints={currentQuestion.hints} />}
+            {showWalkthrough && <WalkthroughDisplay walkthrough={currentQuestion.walkthrough} />}
             {showSolution && (
               <>     
                 <SolutionDisplay solution={currentQuestion.solution} />

@@ -32,11 +32,15 @@ const parseQuestionContent = (content) => {
       case 'solution':
         question.solution = sectionContent;
         break;
+      case 'walkthrough':
+        question.walkthrough = sectionContent;
+        break;
     }
   }
 
   return question;
 };
+
 
 import { simpleChecksum } from './utils/hashUtils';
 
