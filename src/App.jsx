@@ -61,13 +61,15 @@ const App = () => {
   const handleRunCode = useCallback(() => {
     if (!currentQuestion) return;
     const { results, passing } = runUserCode(currentQuestion.testCases, currentQuestion.id);
-    updateProgress(currentQuestion.id, {
+    const updatedProgress = {
       code,
       completed: passing,
       attempts: attempts + 1,
       lastAttemptDate: new Date().toISOString(),
       testResults: results,
-    });
+    };
+    console.log('Updating progress for question:', currentQuestion.id, updatedProgress);
+    updateProgress(currentQuestion.id, updatedProgress);
   }, [currentQuestion, runUserCode, updateProgress, code, attempts]);
 
   const handleViewSolution = useCallback(() => {
@@ -92,13 +94,17 @@ const App = () => {
     setShowSolution(false);
   }, [currentQuestion]);
 
+  useEffect(() => {
+    console.log('Current userProgress:', userProgress);
+  }, [userProgress]);
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       {loading && <LoadingOverlay />}
       <TableOfContents 
         manifest={manifest}
         currentQuestionId={currentQuestionId}
-        completedQuestions={getCompletedQuestions()}
+        userProgress={userProgress}
         selectQuestion={selectQuestion}
       />
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
