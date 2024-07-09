@@ -1,4 +1,4 @@
-export const runCode = (codeToRun, testCases) => {
+ const runCode = (codeToRun, testCases) => {
     return testCases.map(({ func, expected, type, prompts }) => {
       try {
         let result;
@@ -38,10 +38,12 @@ export const runCode = (codeToRun, testCases) => {
     });
   };
   
-  export const compareResults = (result, expected) => {
+  const compareResults = (result, expected) => {
     if (typeof result === 'string' && typeof expected === 'string') {
       return result.trim() === expected.trim();
     } else {
       return result === expected;
     }
   };
+
+  export { runCode };

@@ -24,7 +24,11 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
 
   const resetQuestion = useCallback((newCode = '', newTestCases = []) => {
     setCode(newCode);
-    setTestResults(newTestCases.map(tc => ({ ...tc, result: null, passed: null })));
+    setTestResults(newTestCases.map(tc => ({ 
+      ...tc, 
+      result: null, 
+      passed: null 
+    })));
     setAllPassing(false);
     setAttempts(0);
     setShowSolution(false);
@@ -38,6 +42,7 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
     code,
     setCode,
     testResults,
+    setTestResults,
     allPassing,
     attempts,
     showSolution,

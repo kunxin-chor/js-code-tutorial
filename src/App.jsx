@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import QuestionDisplay from './components/QuestionDisplay';
 import CodeEditor from './components/CodeEditor';
 import TestResults from './components/TestResults';
@@ -33,6 +33,7 @@ const App = () => {
     code,
     setCode,
     testResults,
+    setTestResults,
     allPassing,
     attempts,
     showSolution,
@@ -41,17 +42,23 @@ const App = () => {
     viewSolution,
   } = useCodeRunner();
 
-  useEffect(() => {
+  const initializeQuestion = useCallback(() => {
     if (currentQuestion) {
       const questionProgress = userProgress[currentQuestionIndex] || {};
-      resetQuestion(
-        questionProgress.code || currentQuestion.initialCode,
-        currentQuestion.testCases
-      );
+      const initialCode = questionProgress.code || currentQuestion.initialCode;
+      const initialTestResults = questionProgress.testResults || 
+        currentQuestion.testCases.map(tc => ({ ...tc, result: null, passed: null }));
+      
+      resetQuestion(initialCode, currentQuestion.testCases);
+      setTestResults(initialTestResults);
     }
-  }, [currentQuestion, currentQuestionIndex, userProgress, resetQuestion]);
+  }, [currentQuestion, currentQuestionIndex, userProgress, resetQuestion, setTestResults]);
 
-  const handleRunCode = () => {
+  useEffect(() => {
+    initializeQuestion();
+  }, [initializeQuestion]);
+
+  const handleRunCode = useCallback(() => {
     if (!currentQuestion) return;
     const { results, passing } = runUserCode(currentQuestion.testCases);
     updateProgress(currentQuestionIndex, {
@@ -61,24 +68,25 @@ const App = () => {
       lastAttemptDate: new Date().toISOString(),
       testResults: results,
     });
-  };
+  }, [currentQuestion, runUserCode, updateProgress, currentQuestionIndex, code, attempts]);
 
-  const handleViewSolution = () => {
+  const handleViewSolution = useCallback(() => {
     viewSolution();
     updateProgress(currentQuestionIndex, { viewedSolution: true });
-  };
+  }, [viewSolution, updateProgress, currentQuestionIndex]);
 
-  const handleResetQuestion = () => {
+  const handleResetQuestion = useCallback(() => {
     if (!currentQuestion) return;
     resetQuestion(currentQuestion.initialCode, currentQuestion.testCases);
+    setTestResults(currentQuestion.testCases.map(tc => ({ ...tc, result: null, passed: null })));
     updateProgress(currentQuestionIndex, {
       code: currentQuestion.initialCode,
       completed: false,
       attempts: 0,
-      testResults: [],
+      testResults: currentQuestion.testCases.map(tc => ({ ...tc, result: null, passed: null })),
       viewedSolution: false,
     });
-  };
+  }, [currentQuestion, resetQuestion, setTestResults, updateProgress, currentQuestionIndex]);
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
