@@ -1,9 +1,9 @@
 const QUESTIONS_ROOT_URL = typeof process !== 'undefined' && process.env.REACT_APP_QUESTIONS_ROOT_URL 
   ? process.env.REACT_APP_QUESTIONS_ROOT_URL 
-  : "https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/refactoring/questions/";
+  : "https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/main/questions/";
 const MANIFEST_URL =  typeof process !== 'undefined' && process.env.REACT_APP_QUESTIONS_ROOT_URL 
 ? process.env.REACT_APP_QUESTIONS_ROOT_URL 
-: "https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/refactoring/manifest.json";
+: "https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/main/manifest.json";
 
 const fetchContent = async (url) => {
   const response = await fetch(url);

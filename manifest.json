@@ -3,11 +3,11 @@
       {
         "name": "Variables and Values",
         "questions": [
-          { "title": "Basic Variables", "url": "01-variables-and-values/01-01-variables.md" },
-          { "title": "More Variables", "url": "01-variables-and-values/01-02-more.md" },
-          { "title": "Taxes", "url": "01-variables-and-values/01-03-taxes.md" },
-          { "title": "Muffins", "url": "01-variables-and-values/01-04-muffins.md" },
-          { "title": "Circle Area", "url": "01-variables-and-values/01-05-circle-area.md" }
+          { "title": "Basic Variables", "url": "01-values-and-variables/01-01-variables.md" },
+          { "title": "More Variables", "url": "01-values-and-variables/01-02-more.md" },
+          { "title": "Taxes", "url": "01-values-and-variables/01-03-taxes.md" },
+          { "title": "Muffins", "url": "01-values-and-variables/01-04-muffins.md" },
+          { "title": "Circle Area", "url": "01-values-and-variables/01-05-circle-area.md" }
         ]
       }    
     ]
