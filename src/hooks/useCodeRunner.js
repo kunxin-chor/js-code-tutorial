@@ -6,7 +6,6 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
   const [testResults, setTestResults] = useState([]);
   const [allPassing, setAllPassing] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const [showSolution, setShowSolution] = useState(false);
 
   const runUserCode = useCallback((testCases = []) => {
     if (!code || testCases.length === 0) {
@@ -31,11 +30,6 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
     })));
     setAllPassing(false);
     setAttempts(0);
-    setShowSolution(false);
-  }, []);
-
-  const viewSolution = useCallback(() => {
-    setShowSolution(true);
   }, []);
 
   return {
@@ -45,9 +39,7 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
     setTestResults,
     allPassing,
     attempts,
-    showSolution,
     runUserCode,
     resetQuestion,
-    viewSolution,
   };
 };

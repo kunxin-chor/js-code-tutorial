@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import QuestionDisplay from './components/QuestionDisplay';
 import CodeEditor from './components/CodeEditor';
 import TestResults from './components/TestResults';
@@ -12,6 +12,8 @@ import { useProgressTracker } from './hooks/useProgressTracker';
 import { useCodeRunner } from './hooks/useCodeRunner';
 
 const App = () => {
+  const [showSolution, setShowSolution] = useState(false);
+
   const {
     currentQuestion,
     currentQuestionIndex,
@@ -36,10 +38,8 @@ const App = () => {
     setTestResults,
     allPassing,
     attempts,
-    showSolution,
     runUserCode,
     resetQuestion,
-    viewSolution,
   } = useCodeRunner();
 
   const initializeQuestion = useCallback(() => {
@@ -71,9 +71,9 @@ const App = () => {
   }, [currentQuestion, runUserCode, updateProgress, currentQuestionIndex, code, attempts]);
 
   const handleViewSolution = useCallback(() => {
-    viewSolution();
+    setShowSolution(true);
     updateProgress(currentQuestionIndex, { viewedSolution: true });
-  }, [viewSolution, updateProgress, currentQuestionIndex]);
+  }, [updateProgress, currentQuestionIndex]);
 
   const handleResetQuestion = useCallback(() => {
     if (!currentQuestion) return;
@@ -87,6 +87,10 @@ const App = () => {
       viewedSolution: false,
     });
   }, [currentQuestion, resetQuestion, setTestResults, updateProgress, currentQuestionIndex]);
+
+  useEffect(() => {
+    setShowSolution(false);
+  }, [currentQuestionIndex]);
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
@@ -110,9 +114,11 @@ const App = () => {
               isLastQuestion={isLastQuestion}
             />
             <TestResults testResults={testResults} />
-            <ExplanationSection explanation={currentQuestion.explanation} />
             {showSolution && (
-              <SolutionDisplay solution={currentQuestion.solution} />
+              <>     
+                <SolutionDisplay solution={currentQuestion.solution} />
+                <ExplanationSection explanation={currentQuestion.explanation} />
+              </>
             )}
           </>
         )}

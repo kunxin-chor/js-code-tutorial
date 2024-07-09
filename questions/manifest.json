@@ -7,7 +7,20 @@
           { "title": "More Variables", "url": "01-values-and-variables/01-02-more.md" },
           { "title": "Taxes", "url": "01-values-and-variables/01-03-taxes.md" },
           { "title": "Muffins", "url": "01-values-and-variables/01-04-muffins.md" },
-          { "title": "Circle Area", "url": "01-values-and-variables/01-05-circle-area.md" }
+          { "title": "Circle Area", "url": "01-values-and-variables/01-05-circle-area.md" },
+          { "title": "Temperature Conversion", "url": "01-values-and-variables/01-06-temperature-conversion.md" },
+          { "title": "Currency Exchange", "url": "01-values-and-variables/01-07-currency-exchange.md" }
+        ]
+      }, {
+        "name": "Operators",
+        "questions": [
+          { "title": "Product of Two Numbers", "url": "02-operators/02-01-product.md" },
+          { "title": "Calculate Age", "url": "02-operators/02-02-age.md" },
+          { "title": "Area of a Circle II", "url": "02-operators/02-03-area-of-circle.md" },
+          { "title": "Average of Four Numbers", "url": "02-operators/02-04-average-of-four-numbers.md" },
+          { "title": "Ticket Calculator", "url": "02-operators/02-05-ticket-calculator.md" },
+          { "title": "Muffin Cost Calculator", "url": "02-operators/02-06-muffin-cost-calculator.md" },
+          { "title": "Data Plan Cost Calculator", "url": "02-operators/02-07-data-plan-cost-calculator.md" }
         ]
       }    
     ]
