@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import MonacoEditor from 'react-monaco-editor';
-import ReactMarkdown from 'react-markdown';
 import { getQuestionsFromMarkdown } from './questionParser';
-
-
+import QuestionDisplay from './components/QuestionDisplay';
+import CodeEditor from './components/CodeEditor';
+import TestResults from './components/TestResults';
+import ExplanationSection from './components/ExplanationSection';
+import ActionButtons from './components/ActionButtons';
+import SolutionDisplay from './components/SolutionDisplay';
+import TableOfContents from './components/TableOfContents';
+import { runCode } from './utils/codeUtils';
+import { saveProgress, loadProgress } from './utils/localStorageUtils';
 
 const App = () => {
   const [questionsData, setQuestionsData] = useState([]);
@@ -13,14 +18,20 @@ const App = () => {
   const [allPassing, setAllPassing] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [showSolution, setShowSolution] = useState(false);
-  const [solutionOutput, setSolutionOutput] = useState([]);
+  const [userProgress, setUserProgress] = useState({});
 
   useEffect(() => {
     const fetchQuestions = async () => {
       const questions = await getQuestionsFromMarkdown("https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/main/questions.md");
       setQuestionsData(questions);
-      if (questions.length > 0) {
-        setCurrentQuestion(0);  // Set the initial question
+      
+      // Load progress from localStorage
+      const savedProgress = loadProgress();
+      if (savedProgress) {
+        setUserProgress(savedProgress);
+        setCurrentQuestion(savedProgress.currentQuestion || 0);
+      } else if (questions.length > 0) {
+        setCurrentQuestion(0);
       }
     };
     fetchQuestions();
@@ -28,253 +39,141 @@ const App = () => {
   
   useEffect(() => {
     if (questionsData.length > 0) {
-      setCode(questionsData[currentQuestion].initialCode);
-      setTestResults(questionsData[currentQuestion].testCases.map(tc => ({ ...tc, result: null, passed: null })));
-      setAllPassing(false);
-      setAttempts(0);
-      setShowSolution(false);
-      setSolutionOutput([]);
+      initializeQuestionState();
     }
-  }, [currentQuestion, questionsData]); 
+  }, [currentQuestion, questionsData, userProgress]);
 
-  const runCode = (codeToRun) => {
-    const results = questionsData[currentQuestion].testCases.map(({ func, expected, type }) => {
-      try {
-        let result;
-        let consoleOutput = [];
-        const mockConsoleLog = (...args) => {
-          consoleOutput.push(args.join(' '));
-        };
+  useEffect(() => {
+    // Save progress to localStorage whenever it changes
+    if (Object.keys(userProgress).length > 0) {
+      saveProgress(userProgress);
+    }
+  }, [userProgress]);
 
-        if (type === "console") {
-          const testFunction = new Function('console', `
-            ${codeToRun}
-            ${func};
-          `);
-          testFunction({ log: mockConsoleLog });
-          result = consoleOutput.join('\n');
-        } else {
-          const testFunction = new Function(`
-            ${codeToRun}
-            return ${func};
-          `);
-          result = testFunction();
-        }
+  const initializeQuestionState = () => {
+    const questionProgress = userProgress[currentQuestion] || {};
+    setCode(questionProgress.code || questionsData[currentQuestion].initialCode);
+    setTestResults(questionProgress.testResults || 
+      questionsData[currentQuestion].testCases.map(tc => ({ ...tc, result: null, passed: null })));
+    setAllPassing(questionProgress.completed || false);
+    setAttempts(questionProgress.attempts || 0);
+    setShowSolution(questionProgress.viewedSolution || false);
+  };
 
-        const passed = compareResults(result, expected);
-        return { func, expected, result, passed, type };
-      } catch (error) {
-        return { func, expected, result: error.toString(), passed: false, type };
+  const resetQuestion = () => {
+    setCode(questionsData[currentQuestion].initialCode);
+    setTestResults(questionsData[currentQuestion].testCases.map(tc => ({ 
+      ...tc, 
+      result: null, 
+      passed: null 
+    })));
+    setAllPassing(false);
+    setAttempts(0);
+    setShowSolution(false);
+
+    // Update userProgress to reflect the reset state
+    setUserProgress(prev => ({
+      ...prev,
+      [currentQuestion]: {
+        code: questionsData[currentQuestion].initialCode,
+        completed: false,
+        attempts: 0,
+        testResults: questionsData[currentQuestion].testCases.map(tc => ({ 
+          ...tc, 
+          result: null, 
+          passed: null 
+        })),
+        viewedSolution: false
       }
-    });
-
-    return results;
+    }));
   };
 
   const handleRunCode = () => {
-    const results = runCode(code);
+    const results = runCode(code, questionsData[currentQuestion].testCases);
     setTestResults(results);
-    setAllPassing(results.every(r => r.passed));
-    setAttempts(attempts + 1);
+    const passing = results.every(r => r.passed);
+    setAllPassing(passing);
+    const newAttempts = attempts + 1;
+    setAttempts(newAttempts);
 
-    if (results.every(r => r.passed) || attempts >= 2) {
-      const solutionResults = runCode(questionsData[currentQuestion].solution);
-      setSolutionOutput(solutionResults);
-    }
-  };
-
-  const compareResults = (result, expected) => {
-    if (typeof result === 'string' && typeof expected === 'string') {
-      return result.trim() === expected.trim();
-    } else {
-      return result === expected;
-    }
-  };
-
-  const nextQuestion = () => {
-    if (currentQuestion < questionsData.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    }
+    setUserProgress(prev => ({
+      ...prev,
+      currentQuestion,
+      [currentQuestion]: {
+        code,
+        completed: passing,
+        attempts: newAttempts,
+        lastAttemptDate: new Date().toISOString(),
+        testResults: results
+      }
+    }));
   };
 
   const handleViewSolution = () => {
     setShowSolution(true);
-    const solutionResults = runCode(questionsData[currentQuestion].solution);
-    setSolutionOutput(solutionResults);
+    
+    setUserProgress(prev => ({
+      ...prev,
+      [currentQuestion]: {
+        ...prev[currentQuestion],
+        viewedSolution: true
+      }
+    }));
   };
 
-  const formatOutput = (output) => {
-    if (typeof output === 'string') {
-      return output.replace(/\\n/g, '\n').replace(/\\"/g, '"');
+  const nextQuestion = () => {
+    if (currentQuestion < questionsData.length - 1) {
+      const nextQuestionIndex = currentQuestion + 1;
+      setCurrentQuestion(nextQuestionIndex);
+      setUserProgress(prev => ({ ...prev, currentQuestion: nextQuestionIndex }));
     }
-    return String(output);
+  };
+
+  const selectQuestion = (index) => {
+    setCurrentQuestion(index);
+    setUserProgress(prev => ({ ...prev, currentQuestion: index }));
+  };
+
+  const getCompletedQuestions = () => {
+    return Object.entries(userProgress)
+      .filter(([key, value]) => key !== 'currentQuestion' && value.completed)
+      .map(([key]) => parseInt(key));
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      {questionsData.length > 0 ? (
-        <>
-          <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px', backgroundColor: '#f9f9f9' }}>
-            <h2 style={{ color: '#333' }}>{questionsData[currentQuestion].title}</h2>
-            <ReactMarkdown>{questionsData[currentQuestion].description}</ReactMarkdown>
-          </div>
-
-          <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
-            <h3 style={{ color: '#333' }}>Your Code</h3>
-            <MonacoEditor
-              width="100%"
-              height="200"
-              language="javascript"
-              theme="vs-dark"
-              value={code}
-              options={{
-                selectOnLineNumbers: true,
-                roundedSelection: false,
-                readOnly: false,
-                cursorStyle: 'line',
-                automaticLayout: true,
-              }}
-              onChange={setCode}
+    <div style={{ display: 'flex', height: '100vh' }}>
+      <TableOfContents 
+        questions={questionsData}
+        currentQuestion={currentQuestion}
+        completedQuestions={getCompletedQuestions()}
+        onSelectQuestion={selectQuestion}
+      />
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+        {questionsData.length > 0 ? (
+          <>
+            <QuestionDisplay question={questionsData[currentQuestion]} />
+            <CodeEditor code={code} setCode={setCode} />
+            <ActionButtons 
+              onRunCode={handleRunCode} 
+              onViewSolution={handleViewSolution}
+              onNextQuestion={nextQuestion}
+              onResetQuestion={resetQuestion}
+              isLastQuestion={currentQuestion >= questionsData.length - 1}
             />
-          </div>
-
-          <button 
-            onClick={handleRunCode} 
-            style={{ 
-              marginBottom: '20px', 
-              padding: '10px 20px', 
-              fontSize: '16px', 
-              backgroundColor: '#4CAF50', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '5px', 
-              cursor: 'pointer' 
-            }}
-          >
-            Run Code
-          </button>
-
-          <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
-            <h3 style={{ color: '#333' }}>Test Results</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#f2f2f2' }}>
-                  <th style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Test Case</th>
-                  <th style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Expected Result</th>
-                  <th style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Your Result</th>
-                  <th style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Solution Result</th>
-                  <th style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {testResults.map((result, index) => (
-                  <tr key={index}>
-                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{result.func}</td>
-                    <td style={{ 
-                      padding: '10px', 
-                      borderBottom: '1px solid #ddd', 
-                      fontFamily: 'monospace', 
-                      whiteSpace: 'pre-wrap' 
-                    }}>
-                      {formatOutput(result.expected)}
-                    </td>
-                    <td style={{ 
-                      padding: '10px', 
-                      borderBottom: '1px solid #ddd', 
-                      fontFamily: 'monospace', 
-                      whiteSpace: 'pre-wrap' 
-                    }}>
-                      {result.result !== null ? formatOutput(result.result) : 'Not run yet'}
-                    </td>
-                    <td style={{ 
-                      padding: '10px', 
-                      borderBottom: '1px solid #ddd', 
-                      fontFamily: 'monospace', 
-                      whiteSpace: 'pre-wrap' 
-                    }}>
-                      {solutionOutput[index] ? formatOutput(solutionOutput[index].result) : 'Not shown'}
-                    </td>
-                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                      {result.passed === null ? 'Not run yet' : 
-                       result.passed ? '✅ PASS' : '❌ FAIL'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px', backgroundColor: '#f9f9f9' }}>
-            <h3 style={{ color: '#333' }}>Explanation</h3>
-            <ReactMarkdown>{questionsData[currentQuestion].explanation}</ReactMarkdown>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-            <button
-              onClick={handleViewSolution}
-              style={{
-                padding: '10px 20px',
-                fontSize: '16px',
-                backgroundColor: '#2196F3',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
-              }}
-            >
-              Show Solution
-            </button>
-            <button
-              onClick={nextQuestion}
-              disabled={currentQuestion >= questionsData.length - 1}
-              style={{
-                padding: '10px 20px',
-                fontSize: '16px',
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                opacity: currentQuestion >= questionsData.length - 1 ? 0.5 : 1
-              }}
-            >
-              Next Question
-            </button>
-          </div>
-
-          {showSolution && (
-            <div style={{ marginTop: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
-              <h3 style={{ color: '#333' }}>Solution</h3>
-              <pre style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: '10px' }}>
-                {questionsData[currentQuestion].solution}
-              </pre>
-            </div>
-          )}
-        </>
-      ) : (
-        <div>Loading questions...</div>
-      )}
+            <TestResults 
+              testResults={testResults}
+            />
+            <ExplanationSection explanation={questionsData[currentQuestion].explanation} />
+            {showSolution && (
+              <SolutionDisplay solution={questionsData[currentQuestion].solution} />
+            )}
+          </>
+        ) : (
+          <div>Loading questions...</div>
+        )}
+      </div>
     </div>
   );
-};
-
-const tableHeaderStyle = {
-  backgroundColor: '#f2f2f2',
-  padding: '10px',
-  textAlign: 'left',
-  borderBottom: '1px solid #ddd'
-};
-
-const tableCellStyle = {
-  padding: '10px',
-  borderBottom: '1px solid #ddd'
-};
-
-const preStyle = {
-  whiteSpace: 'pre-wrap',
-  wordBreak: 'break-all',
-  margin: 0,
-  fontFamily: 'monospace'
 };
 
 export default App;

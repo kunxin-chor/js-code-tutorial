@@ -28,7 +28,12 @@ const parseMarkdown = (markdown) => {
           question.initialCode = content;
           break;
         case 'testcases':
-          question.testCases = JSON.parse(content);
+          question.testCases = JSON.parse(content).map(testCase => {
+            if (testCase.prompts) {
+              testCase.prompts = JSON.parse(testCase.prompts);
+            }
+            return testCase;
+          });
           break;
         case 'solution':
           question.solution = content;
