@@ -1,17 +1,14 @@
 {
     "categories": [
       {
-        "name": "Basics",
+        "name": "Variables and Values",
         "questions": [
-          { "title": "Add Two Numbers", "url": "basics/add-two-numbers.md" },
-          { "title": "Print a Pyramid", "url": "basics/print-pyramid.md" }
+          { "title": "Basic Variables", "url": "01-variables-and-values/01-01-variables.md" },
+          { "title": "More Variables", "url": "01-variables-and-values/01-02-more.md" },
+          { "title": "Taxes", "url": "01-variables-and-values/01-03-taxes.md" },
+          { "title": "Muffins", "url": "01-variables-and-values/01-04-muffins.md" },
+          { "title": "Circle Area", "url": "01-variables-and-values/01-05-circle-area.md" }
         ]
-      },
-      {
-        "name": "Intermediate",
-        "questions": [
-          { "title": "Greet User", "url": "intermediate/greet-user.md" }
-        ]
-      }
+      }    
     ]
   }
