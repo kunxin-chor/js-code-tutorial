@@ -2,9 +2,7 @@ const QUESTIONS_ROOT_URL = import.meta.env.VITE_QUESTIONS_ROOT_URL || "/question
 const MANIFEST_URL = import.meta.env.VITE_MANIFEST_URL || "/questions/manifest.json";
 
 const fetchContent = async (url) => {
-  const response = await fetch(url, {
-    headers: { 'Cache-Control': 'no-cache' },
-  });
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
