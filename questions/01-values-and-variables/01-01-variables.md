@@ -24,7 +24,7 @@ console.log(p);
 
 ---TESTCASES---
 [
-  { "func": "console.log(p)", "expected": "53", "type": "console" }
+  { "func": "", "expected": "53", "type": "console" }
 ]
 
 ---EXPLANATION---

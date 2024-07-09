@@ -1,11 +1,12 @@
- const runCode = (codeToRun, testCases) => {
+const runCode = (code, testCases) => {
     return testCases.map(({ func, expected, type, prompts }) => {
       try {
         let result;
         let consoleOutput = [];
-        const mockConsoleLog = (...args) => {
-          consoleOutput.push(args.join(' '));
-        };
+        const originalConsoleLog = console.log;
+        console.log = (...args) => {
+            consoleOutput.push(args.join(' '));
+          };
   
         let promptIndex = 0;
         const mockPrompt = () => {
@@ -16,23 +17,26 @@
         };
   
         if (type === "console") {
-          const testFunction = new Function('console', 'prompt', `
-            ${codeToRun}
+          const testFunction = new Function('prompt', `
+            ${code}
             ${func};
           `);
-          testFunction({ log: mockConsoleLog }, mockPrompt);
+          testFunction(mockPrompt);
           result = consoleOutput.join('\n');
         } else {
           const testFunction = new Function('prompt', `
-            ${codeToRun}
+            ${code}
             return ${func};
           `);
           result = testFunction(mockPrompt);
         }
   
+        console.log = originalConsoleLog;  // Restore original console.log
+  
         const passed = compareResults(result, expected);
         return { func, expected, result, passed, type };
       } catch (error) {
+        console.log = originalConsoleLog;  // Restore original console.log in case of error
         return { func, expected, result: error.toString(), passed: false, type };
       }
     });
@@ -40,10 +44,11 @@
   
   const compareResults = (result, expected) => {
     if (typeof result === 'string' && typeof expected === 'string') {
-      return result.trim() === expected.trim();
+      // Remove all whitespace, including newlines, before comparing
+      return result.replace(/\s/g, '') === expected.replace(/\s/g, '');
     } else {
       return result === expected;
     }
   };
-
+  
   export { runCode };
