@@ -1,0 +1,17 @@
+{
+    "categories": [
+      {
+        "name": "Basics",
+        "questions": [
+          { "title": "Add Two Numbers", "url": "basics/add-two-numbers.md" },
+          { "title": "Print a Pyramid", "url": "basics/print-pyramid.md" }
+        ]
+      },
+      {
+        "name": "Intermediate",
+        "questions": [
+          { "title": "Greet User", "url": "intermediate/greet-user.md" }
+        ]
+      }
+    ]
+  }

@@ -1,6 +1,8 @@
 import React from 'react';
 
-const TableOfContents = ({ questions, currentQuestion, completedQuestions, onSelectQuestion }) => {
+const TableOfContents = ({ manifest, currentQuestionIndex, completedQuestions, onSelectQuestion }) => {
+  if (!manifest) return null;
+
   return (
     <div style={{
       width: '250px',
@@ -11,29 +13,37 @@ const TableOfContents = ({ questions, currentQuestion, completedQuestions, onSel
       backgroundColor: '#f5f5f5'
     }}>
       <h2 style={{ marginBottom: '20px' }}>Questions</h2>
-      <ul style={{ listStyleType: 'none', padding: 0 }}>
-        {questions.map((question, index) => (
-          <li 
-            key={index}
-            style={{
-              padding: '10px',
-              marginBottom: '10px',
-              backgroundColor: index === currentQuestion ? '#e0e0e0' : 'white',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}
-            onClick={() => onSelectQuestion(index)}
-          >
-            <span>{question.title}</span>
-            {completedQuestions.includes(index) && (
-              <span style={{ color: 'green' }}>✓</span>
-            )}
-          </li>
-        ))}
-      </ul>
+      {manifest.categories.map((category, categoryIndex) => (
+        <div key={category.name}>
+          <h3>{category.name}</h3>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {category.questions.map((question, questionIndex) => {
+              const globalIndex = manifest.categories.slice(0, categoryIndex).reduce((sum, c) => sum + c.questions.length, 0) + questionIndex;
+              return (
+                <li 
+                  key={question.url}
+                  style={{
+                    padding: '10px',
+                    marginBottom: '10px',
+                    backgroundColor: globalIndex === currentQuestionIndex ? '#e0e0e0' : 'white',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                  onClick={() => onSelectQuestion(globalIndex)}
+                >
+                  <span>{question.title || 'Untitled Question'}</span>
+                  {completedQuestions.includes(globalIndex) && (
+                    <span style={{ color: 'green' }}>✓</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 };

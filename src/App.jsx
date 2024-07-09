@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import QuestionDisplay from './components/QuestionDisplay';
 import CodeEditor from './components/CodeEditor';
 import TestResults from './components/TestResults';
@@ -12,24 +12,26 @@ import { useCodeRunner } from './hooks/useCodeRunner';
 
 const App = () => {
   const {
-    questionsData,
     currentQuestion,
+    currentQuestionIndex,
+    categories,
     nextQuestion,
     selectQuestion,
     isLastQuestion,
+    loading,
+    manifest
   } = useQuestionManager();
 
   const {
     userProgress,
     updateProgress,
     getCompletedQuestions,
-  } = useProgressTracker(currentQuestion);
+  } = useProgressTracker();
 
   const {
     code,
     setCode,
     testResults,
-    setTestResults,
     allPassing,
     attempts,
     showSolution,
@@ -38,24 +40,17 @@ const App = () => {
     viewSolution,
   } = useCodeRunner();
 
-  useEffect(() => {
-    if (questionsData.length > 0) {
-      const questionProgress = userProgress[currentQuestion] || {};
-      const currentQuestionData = questionsData[currentQuestion];
-      resetQuestion(
-        questionProgress.code || currentQuestionData.initialCode,
-        currentQuestionData.testCases
-      );
-      if (questionProgress.testResults) {
-        setTestResults(questionProgress.testResults);
-      }
+  React.useEffect(() => {
+    if (currentQuestion) {
+      const questionProgress = userProgress[currentQuestionIndex] || {};
+      resetQuestion(questionProgress.code || currentQuestion.initialCode);
     }
-  }, [currentQuestion, questionsData, userProgress, resetQuestion, setTestResults]);
+  }, [currentQuestion, currentQuestionIndex, userProgress, resetQuestion]);
 
   const handleRunCode = () => {
-    const currentQuestionData = questionsData[currentQuestion];
-    const { results, passing } = runUserCode(currentQuestionData.testCases);
-    updateProgress(currentQuestion, {
+    if (!currentQuestion) return;
+    const { results, passing } = runUserCode(currentQuestion.testCases);
+    updateProgress(currentQuestionIndex, {
       code,
       completed: passing,
       attempts: attempts + 1,
@@ -66,49 +61,47 @@ const App = () => {
 
   const handleViewSolution = () => {
     viewSolution();
-    updateProgress(currentQuestion, { viewedSolution: true });
+    updateProgress(currentQuestionIndex, { viewedSolution: true });
   };
 
   const handleResetQuestion = () => {
-    const currentQuestionData = questionsData[currentQuestion];
-    resetQuestion(currentQuestionData.initialCode, currentQuestionData.testCases);
-    updateProgress(currentQuestion, {
-      code: currentQuestionData.initialCode,
+    if (!currentQuestion) return;
+    resetQuestion(currentQuestion.initialCode);
+    updateProgress(currentQuestionIndex, {
+      code: currentQuestion.initialCode,
       completed: false,
       attempts: 0,
-      testResults: currentQuestionData.testCases.map(tc => ({ ...tc, result: null, passed: null })),
+      testResults: [],
       viewedSolution: false,
     });
   };
 
+  if (loading || !currentQuestion) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <TableOfContents 
-        questions={questionsData}
-        currentQuestion={currentQuestion}
+        manifest={manifest}
+        currentQuestionIndex={currentQuestionIndex}
         completedQuestions={getCompletedQuestions()}
         onSelectQuestion={selectQuestion}
       />
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
-        {questionsData.length > 0 ? (
-          <>
-            <QuestionDisplay question={questionsData[currentQuestion]} />
-            <CodeEditor code={code} setCode={setCode} />
-            <ActionButtons 
-              onRunCode={handleRunCode} 
-              onViewSolution={handleViewSolution}
-              onNextQuestion={nextQuestion}
-              onResetQuestion={handleResetQuestion}
-              isLastQuestion={isLastQuestion}
-            />
-            <TestResults testResults={testResults} />
-            <ExplanationSection explanation={questionsData[currentQuestion].explanation} />
-            {showSolution && (
-              <SolutionDisplay solution={questionsData[currentQuestion].solution} />
-            )}
-          </>
-        ) : (
-          <div>Loading questions...</div>
+        <QuestionDisplay question={currentQuestion} />
+        <CodeEditor code={code} setCode={setCode} />
+        <ActionButtons 
+          onRunCode={handleRunCode} 
+          onViewSolution={handleViewSolution}
+          onNextQuestion={nextQuestion}
+          onResetQuestion={handleResetQuestion}
+          isLastQuestion={isLastQuestion}
+        />
+        <TestResults testResults={testResults} />
+        <ExplanationSection explanation={currentQuestion.explanation} />
+        {showSolution && (
+          <SolutionDisplay solution={currentQuestion.solution} />
         )}
       </div>
     </div>
