@@ -5,16 +5,16 @@ Calculating Total Cost of Muffins
 ---DESCRIPTION---
 In this exercise, you'll practice working with dollars and cents, and performing calculations in JavaScript.
 
-A muffin from the bakery costs a certain number of dollars and cents. Mary bought several muffins. Your task is to calculate the total amount Mary must pay.
+A muffin from the bakery costs `d` dollars and  `c` cents. Mary bought `n` muffins. Your task is to calculate the total amount Mary must pay. If each muffin costs $2.75 and Mary bought 7 muffins, calculate how much many dollars and how many cents Mary must pay.
 
 You need to:
 1. Create a variable `d` and assign it the dollar cost of one muffin
 2. Create a variable `c` and assign it the cent cost of one muffin (as a whole number, e.g., 50 for 50 cents)
 3. Create a variable `n` and assign it the number of muffins Mary bought
-4. Create a variable `total` and assign it the total cost in dollars (remember to convert cents to dollars)
-5. **Do not use `console.log`** any time at all!
+4. Create a variable `totalDollars` and assign it the total cost in dollars 
+5. Create a variable `totalCents` and assign it the total cost in cents
+6. **Do not use `console.log`** any time at all!
 
-Choose your own values for `d`, `c`, and `n`, but make sure they are reasonable (e.g., a muffin probably doesn't cost $100).
 
 This exercise will help you understand:
 - How to work with dollars and cents in JavaScript
@@ -25,36 +25,31 @@ This exercise will help you understand:
 // Your code here
 
 
-// Do not use console.log to print out the variables
+// Do not change the code here:
+console.log(totalDollars, totalCents);
 
 ---TESTCASES---
 [
-  { "func": "console.log(typeof d === 'number' && d > 0)", "expected": "true", "type": "console" },
-  { "func": "console.log(typeof c === 'number' && c >= 0 && c < 100 && Math.floor(c) === c)", "expected": "true", "type": "console" },
-  { "func": "console.log(typeof n === 'number' && n > 0 && Math.floor(n) === n)", "expected": "true", "type": "console" },
-  { "func": "console.log(total === (d + c/100) * n)", "expected": "true", "type": "console" }
+  { "func": "console.log(d, c, n, totalDollars, totalCents)", "expected": "2 75 7 19 25", "type": "console" }
 ]
 
 ---EXPLANATION---
-This problem introduces you to working with money calculations in JavaScript. Here's what you need to do:
+In this problem, we need to calculate the total cost of muffins that Mary bought. Each muffin has a cost in dollars and cents, and Mary bought a certain number of muffins. Here's a step-by-step explanation of the solution:
 
-1. Declare a variable `d` and assign it the dollar part of the muffin cost (e.g., 2 for $2.50).
-2. Declare a variable `c` and assign it the cent part of the muffin cost as a whole number (e.g., 50 for $2.50).
-3. Declare a variable `n` and assign it the number of muffins Mary bought.
-4. Declare a variable `total` and calculate the total cost:
-   - First, convert cents to dollars by dividing `c` by 100
-   - Add this to `d` to get the full price of one muffin
-   - Multiply this by `n` to get the total cost
+1. We start by defining the cost of one muffin in dollars (`d`) and cents (`c`). In this example, `d` is 2 and `c` is 75, meaning each muffin costs $2.75.
+2. We also define the number of muffins Mary bought (`n`). In this example, `n` is 7.
+3. To calculate the total cost, we first convert the cost of one muffin to cents. This is done by multiplying the dollar part by 100 and adding the cent part: `(d * 100 + c)`.
+4. Next, we multiply the total cost of one muffin in cents by the number of muffins (`n`) to get the total cost in cents: `(d * 100 + c) * n`.
+5. We then convert the total cost from cents back to dollars and cents. The total dollars are obtained by dividing the total cost in cents by 100 and using `Math.floor` to get the integer part.
+6. The remaining cents are obtained using the modulus operator (`%`) to get the remainder when the total cost in cents is divided by 100.
 
-This exercise helps you practice:
-- Working with dollars and cents separately
-- Converting cents to dollars
-- Performing calculations with money
-
-Remember, when working with money, it's important to be precise. Using separate variables for dollars and cents helps avoid rounding errors that can occur with floating-point numbers.
+This approach ensures that we correctly handle the conversion between dollars and cents and accurately calculate the total cost Mary must pay.
 
 ---SOLUTION---
-const d = 2;  // $2
-const c = 50; // 50 cents
-const n = 5;  // 5 muffins
-const total = (d + c/100) * n;
+const d = 2;
+const c = 75;
+const n = 7;
+
+const totalCostInCents = (d * 100 + c) * n;
+const totalDollars = Math.floor(totalCostInCents / 100);
+const totalCents = totalCostInCents % 100;

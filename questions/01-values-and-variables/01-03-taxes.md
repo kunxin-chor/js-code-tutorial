@@ -28,9 +28,7 @@ console.log(totalPayment);
 
 ---TESTCASES---
 [
-  { "func": "", "expected": "0.09", "type": "console" },
-  { "func": "", "expected": "450000", "type": "console" },
-  { "func": "", "expected": "40500", "type": "console" }
+  { "func": "", "expected": "0.09\n450000\n40500", "type": "console" }
 ]
 
 ---EXPLANATION---

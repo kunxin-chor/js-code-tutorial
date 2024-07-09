@@ -1,12 +1,10 @@
-const QUESTIONS_ROOT_URL = typeof process !== 'undefined' && process.env.REACT_APP_QUESTIONS_ROOT_URL 
-  ? process.env.REACT_APP_QUESTIONS_ROOT_URL 
-  : "https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/main/questions/";
-const MANIFEST_URL =  typeof process !== 'undefined' && process.env.REACT_APP_QUESTIONS_ROOT_URL 
-? process.env.REACT_APP_QUESTIONS_ROOT_URL 
-: "https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/main/manifest.json";
+const QUESTIONS_ROOT_URL = import.meta.env.VITE_QUESTIONS_ROOT_URL || "/questions/";
+const MANIFEST_URL = import.meta.env.VITE_MANIFEST_URL || "/questions/manifest.json";
 
 const fetchContent = async (url) => {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: { 'Cache-Control': 'no-cache' },
+  });
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -43,18 +41,14 @@ const parseQuestionContent = (content) => {
 };
 
 export const getManifest = async () => {
-  if (!MANIFEST_URL) {
-    throw new Error('MANIFEST_URL is not defined in environment variables');
-  }
+  console.log('Fetching manifest from:', MANIFEST_URL);
   const manifestContent = await fetchContent(MANIFEST_URL);
   return JSON.parse(manifestContent);
 };
 
 export const loadQuestion = async (questionPath) => {
-  if (!QUESTIONS_ROOT_URL) {
-    throw new Error('QUESTIONS_ROOT_URL is not defined in environment variables');
-  }
-  const fullUrl = `${QUESTIONS_ROOT_URL}/${questionPath}`;
+  const fullUrl = `${QUESTIONS_ROOT_URL}${questionPath}`;
+  console.log('Fetching question from:', fullUrl);
   const content = await fetchContent(fullUrl);
   return parseQuestionContent(content);
 };
