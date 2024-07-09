@@ -12,7 +12,7 @@ You need to:
 2. Create a variable `c` and assign it the cent cost of one muffin (as a whole number, e.g., 50 for 50 cents)
 3. Create a variable `n` and assign it the number of muffins Mary bought
 4. Create a variable `total` and assign it the total cost in dollars (remember to convert cents to dollars)
-5. Use `console.log` to display the values of `d`, `c`, `n`, and `total`
+5. **Do not use `console.log`** any time at all!
 
 Choose your own values for `d`, `c`, and `n`, but make sure they are reasonable (e.g., a muffin probably doesn't cost $100).
 
@@ -25,11 +25,7 @@ This exercise will help you understand:
 // Your code here
 
 
-// Do not modify the code below this line
-console.log(d);
-console.log(c);
-console.log(n);
-console.log(total);
+// Do not use console.log to print out the variables
 
 ---TESTCASES---
 [
@@ -62,9 +58,3 @@ const d = 2;  // $2
 const c = 50; // 50 cents
 const n = 5;  // 5 muffins
 const total = (d + c/100) * n;
-
-// Do not modify the code below this line
-console.log(d);
-console.log(c);
-console.log(n);
-console.log(total);

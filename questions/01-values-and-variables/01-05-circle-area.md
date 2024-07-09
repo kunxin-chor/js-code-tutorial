@@ -27,7 +27,7 @@ console.log(areaOfCircle);
 
 ---TESTCASES---
 [
-  { "func": "console.log(Math.round(areaOfCircle * 100) / 100)", "expected": "1661.06", "type": "console" }
+  { "func": "", "expected": "1661.06", "type": "console" }
 ]
 
 ---EXPLANATION---

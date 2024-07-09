@@ -28,9 +28,9 @@ console.log(totalPayment);
 
 ---TESTCASES---
 [
-  { "func": "console.log(taxRate)", "expected": "0.09", "type": "console" },
-  { "func": "console.log(income)", "expected": "450000", "type": "console" },
-  { "func": "console.log(totalPayment)", "expected": "40500", "type": "console" }
+  { "func": "", "expected": "0.09", "type": "console" },
+  { "func": "", "expected": "450000", "type": "console" },
+  { "func": "", "expected": "40500", "type": "console" }
 ]
 
 ---EXPLANATION---
