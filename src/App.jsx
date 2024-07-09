@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import QuestionDisplay from './components/QuestionDisplay';
 import CodeEditor from './components/CodeEditor';
 import TestResults from './components/TestResults';
@@ -6,6 +6,7 @@ import ExplanationSection from './components/ExplanationSection';
 import ActionButtons from './components/ActionButtons';
 import SolutionDisplay from './components/SolutionDisplay';
 import TableOfContents from './components/TableOfContents';
+import LoadingOverlay from './components/LoadingOverlay';
 import { useQuestionManager } from './hooks/useQuestionManager';
 import { useProgressTracker } from './hooks/useProgressTracker';
 import { useCodeRunner } from './hooks/useCodeRunner';
@@ -40,10 +41,13 @@ const App = () => {
     viewSolution,
   } = useCodeRunner();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentQuestion) {
       const questionProgress = userProgress[currentQuestionIndex] || {};
-      resetQuestion(questionProgress.code || currentQuestion.initialCode);
+      resetQuestion(
+        questionProgress.code || currentQuestion.initialCode,
+        currentQuestion.testCases
+      );
     }
   }, [currentQuestion, currentQuestionIndex, userProgress, resetQuestion]);
 
@@ -66,7 +70,7 @@ const App = () => {
 
   const handleResetQuestion = () => {
     if (!currentQuestion) return;
-    resetQuestion(currentQuestion.initialCode);
+    resetQuestion(currentQuestion.initialCode, currentQuestion.testCases);
     updateProgress(currentQuestionIndex, {
       code: currentQuestion.initialCode,
       completed: false,
@@ -76,12 +80,9 @@ const App = () => {
     });
   };
 
-  if (loading || !currentQuestion) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
+      {loading && <LoadingOverlay />}
       <TableOfContents 
         manifest={manifest}
         currentQuestionIndex={currentQuestionIndex}
@@ -89,19 +90,23 @@ const App = () => {
         onSelectQuestion={selectQuestion}
       />
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
-        <QuestionDisplay question={currentQuestion} />
-        <CodeEditor code={code} setCode={setCode} />
-        <ActionButtons 
-          onRunCode={handleRunCode} 
-          onViewSolution={handleViewSolution}
-          onNextQuestion={nextQuestion}
-          onResetQuestion={handleResetQuestion}
-          isLastQuestion={isLastQuestion}
-        />
-        <TestResults testResults={testResults} />
-        <ExplanationSection explanation={currentQuestion.explanation} />
-        {showSolution && (
-          <SolutionDisplay solution={currentQuestion.solution} />
+        {currentQuestion && (
+          <>
+            <QuestionDisplay question={currentQuestion} />
+            <CodeEditor code={code} setCode={setCode} />
+            <ActionButtons 
+              onRunCode={handleRunCode} 
+              onViewSolution={handleViewSolution}
+              onNextQuestion={nextQuestion}
+              onResetQuestion={handleResetQuestion}
+              isLastQuestion={isLastQuestion}
+            />
+            <TestResults testResults={testResults} />
+            <ExplanationSection explanation={currentQuestion.explanation} />
+            {showSolution && (
+              <SolutionDisplay solution={currentQuestion.solution} />
+            )}
+          </>
         )}
       </div>
     </div>

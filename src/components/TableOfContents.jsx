@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 const TableOfContents = ({ manifest, currentQuestionIndex, completedQuestions, onSelectQuestion }) => {
+  const [expandedCategories, setExpandedCategories] = useState({});
+
   if (!manifest) return null;
+
+  const toggleCategory = (categoryName) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoryName]: !prev[categoryName]
+    }));
+  };
 
   return (
     <div style={{
@@ -15,33 +26,44 @@ const TableOfContents = ({ manifest, currentQuestionIndex, completedQuestions, o
       <h2 style={{ marginBottom: '20px' }}>Questions</h2>
       {manifest.categories.map((category, categoryIndex) => (
         <div key={category.name}>
-          <h3>{category.name}</h3>
-          <ul style={{ listStyleType: 'none', padding: 0 }}>
-            {category.questions.map((question, questionIndex) => {
-              const globalIndex = manifest.categories.slice(0, categoryIndex).reduce((sum, c) => sum + c.questions.length, 0) + questionIndex;
-              return (
-                <li 
-                  key={question.url}
-                  style={{
-                    padding: '10px',
-                    marginBottom: '10px',
-                    backgroundColor: globalIndex === currentQuestionIndex ? '#e0e0e0' : 'white',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}
-                  onClick={() => onSelectQuestion(globalIndex)}
-                >
-                  <span>{question.title || 'Untitled Question'}</span>
-                  {completedQuestions.includes(globalIndex) && (
-                    <span style={{ color: 'green' }}>✓</span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+          <h3 
+            onClick={() => toggleCategory(category.name)}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          >
+            <FontAwesomeIcon 
+              icon={expandedCategories[category.name] ? faChevronDown : faChevronRight} 
+              style={{ marginRight: '10px' }}
+            />
+            {category.name}
+          </h3>
+          {expandedCategories[category.name] && (
+            <ul style={{ listStyleType: 'none', padding: 0 }}>
+              {category.questions.map((question, questionIndex) => {
+                const globalIndex = manifest.categories.slice(0, categoryIndex).reduce((sum, c) => sum + c.questions.length, 0) + questionIndex;
+                return (
+                  <li 
+                    key={question.url}
+                    style={{
+                      padding: '10px',
+                      marginBottom: '10px',
+                      backgroundColor: globalIndex === currentQuestionIndex ? '#e0e0e0' : 'white',
+                      borderRadius: '5px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}
+                    onClick={() => onSelectQuestion(globalIndex)}
+                  >
+                    <span>{question.title || 'Untitled Question'}</span>
+                    {completedQuestions.includes(globalIndex) && (
+                      <span style={{ color: 'green' }}>✓</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       ))}
     </div>

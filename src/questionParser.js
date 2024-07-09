@@ -1,5 +1,9 @@
-const QUESTIONS_ROOT_URL = process.env.REACT_APP_QUESTIONS_ROOT_URL;
-const MANIFEST_URL = process.env.REACT_APP_MANIFEST_URL;
+const QUESTIONS_ROOT_URL = typeof process !== 'undefined' && process.env.REACT_APP_QUESTIONS_ROOT_URL 
+  ? process.env.REACT_APP_QUESTIONS_ROOT_URL 
+  : "https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/refactoring/questions/";
+const MANIFEST_URL =  typeof process !== 'undefined' && process.env.REACT_APP_QUESTIONS_ROOT_URL 
+? process.env.REACT_APP_QUESTIONS_ROOT_URL 
+: "https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/refactoring/manifest.json";
 
 const fetchContent = async (url) => {
   const response = await fetch(url);
@@ -39,11 +43,18 @@ const parseQuestionContent = (content) => {
 };
 
 export const getManifest = async () => {
+  if (!MANIFEST_URL) {
+    throw new Error('MANIFEST_URL is not defined in environment variables');
+  }
   const manifestContent = await fetchContent(MANIFEST_URL);
   return JSON.parse(manifestContent);
 };
 
 export const loadQuestion = async (questionPath) => {
-  const content = await fetchContent(`${QUESTIONS_ROOT_URL}/${questionPath}`);
+  if (!QUESTIONS_ROOT_URL) {
+    throw new Error('QUESTIONS_ROOT_URL is not defined in environment variables');
+  }
+  const fullUrl = `${QUESTIONS_ROOT_URL}/${questionPath}`;
+  const content = await fetchContent(fullUrl);
   return parseQuestionContent(content);
 };
