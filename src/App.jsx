@@ -48,21 +48,27 @@ const App = () => {
   } = useCodeRunner();
 
   useEffect(() => {
-    if (currentQuestion && !codeHasRun) {
+    if (currentQuestion) {
       const questionProgress = userProgress[currentQuestion.id] || {};
       const initialCode = questionProgress.code || currentQuestion.initialCode;
       
-      resetQuestion(initialCode, currentQuestion.testCases);
+      setCode(initialCode);
       
-      setTestResults(currentQuestion.testCases.map(tc => ({
-        ...tc,
-        result: null,
-        passed: null
-      })));
+      if (questionProgress.completed && questionProgress.testResults) {
+        // If the question was previously completed, use the stored test results
+        setTestResults(questionProgress.testResults);
+      } else {
+        // Otherwise, initialize the test results with the current question's test cases
+        setTestResults(currentQuestion.testCases.map(tc => ({
+          ...tc,
+          result: null,
+          passed: null
+        })));
+      }
       
       setCodeHasRun(false);
     }
-  }, [currentQuestion, userProgress, resetQuestion, codeHasRun]);
+  }, [currentQuestion, userProgress, setCode, setTestResults]);
 
   const handleRunCode = useCallback(() => {
     if (!currentQuestion) return;
@@ -125,6 +131,11 @@ const App = () => {
     setShowWalkthrough(false);
   }, [currentQuestion]);
 
+  const handleQuestionChange = useCallback((newQuestionId) => {
+    setCodeHasRun(false);
+    selectQuestion(newQuestionId);
+  }, [selectQuestion]);
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       {loading && <LoadingOverlay />}
@@ -132,7 +143,7 @@ const App = () => {
         manifest={manifest}
         currentQuestionId={currentQuestionId}
         userProgress={userProgress}
-        selectQuestion={selectQuestion}
+        selectQuestion={handleQuestionChange}
       />
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
         {currentQuestion && (

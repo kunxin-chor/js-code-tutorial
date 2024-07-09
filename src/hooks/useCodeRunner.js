@@ -13,12 +13,24 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
       return { results: [], passing: false };
     }
 
-    const results = runCode(code, testCases, questionId);
-    setTestResults(results);
-    const passing = results.every(r => r.passed);
-    setAllPassing(passing);
-    setAttempts(prev => prev + 1);
-    return { results, passing };
+    try {
+      const results = runCode(code, testCases, questionId);
+      if (!Array.isArray(results)) {
+        console.error('runCode did not return an array:', results);
+        return { results: [], passing: false };
+      }
+      setTestResults(results);
+      const passing = results.every(r => r.passed);
+      setAllPassing(passing);
+      setAttempts(prev => prev + 1);
+      return { results, passing };
+    } catch (error) {
+      console.error('Error running code:', error);
+      setTestResults([]);
+      setAllPassing(false);
+      setAttempts(prev => prev + 1);
+      return { results: [], passing: false };
+    }
   }, [code]);
 
   const resetQuestion = useCallback((newCode = '', newTestCases = []) => {

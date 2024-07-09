@@ -1,12 +1,14 @@
-const runCode = (code, testCases, questionId) => {
+const runCode = (code, testCases) => {
+  try {
     return testCases.map(({ func, expected, type, prompts }) => {
       try {
         let result;
         let consoleOutput = [];
         const originalConsoleLog = console.log;
         console.log = (...args) => {
-            consoleOutput.push(args.join(' '));
-          };
+          consoleOutput.push(args.join(' '));
+          originalConsoleLog.apply(console, args);
+        };
   
         let promptIndex = 0;
         const mockPrompt = () => {
@@ -40,15 +42,18 @@ const runCode = (code, testCases, questionId) => {
         return { func, expected, result: error.toString(), passed: false, type };
       }
     });
-  };
-  
-  const compareResults = (result, expected) => {
-    if (typeof result === 'string' && typeof expected === 'string') {
-      // Remove all whitespace, including newlines, before comparing
-      return result.replace(/\s/g, '') === expected.replace(/\s/g, '');
-    } else {
-      return result === expected;
-    }
-  };
-  
-  export { runCode };
+  } catch (error) {
+
+  }
+};
+
+const compareResults = (result, expected) => {
+  if (typeof result === 'string' && typeof expected === 'string') {
+    // Remove all whitespace, including newlines, before comparing
+    return result.replace(/\s/g, '') === expected.replace(/\s/g, '');
+  } else {
+    return result === expected;
+  }
+};
+
+export { runCode };
