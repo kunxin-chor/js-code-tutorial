@@ -22,7 +22,7 @@ const App = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      const questions = await getQuestionsFromMarkdown("https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/main/questions.md");
+      const questions = await getQuestionsFromMarkdown("https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/refactoring/questions.md");
       setQuestionsData(questions);
       
       // Load progress from localStorage
