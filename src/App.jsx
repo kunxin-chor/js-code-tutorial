@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { getQuestionsFromMarkdown } from './questionParser';
+import React, { useEffect } from 'react';
 import QuestionDisplay from './components/QuestionDisplay';
 import CodeEditor from './components/CodeEditor';
 import TestResults from './components/TestResults';
@@ -7,137 +6,79 @@ import ExplanationSection from './components/ExplanationSection';
 import ActionButtons from './components/ActionButtons';
 import SolutionDisplay from './components/SolutionDisplay';
 import TableOfContents from './components/TableOfContents';
-import { runCode } from './utils/codeUtils';
-import { saveProgress, loadProgress } from './utils/localStorageUtils';
+import { useQuestionManager } from './hooks/useQuestionManager';
+import { useProgressTracker } from './hooks/useProgressTracker';
+import { useCodeRunner } from './hooks/useCodeRunner';
 
 const App = () => {
-  const [questionsData, setQuestionsData] = useState([]);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [code, setCode] = useState('');
-  const [testResults, setTestResults] = useState([]);
-  const [allPassing, setAllPassing] = useState(false);
-  const [attempts, setAttempts] = useState(0);
-  const [showSolution, setShowSolution] = useState(false);
-  const [userProgress, setUserProgress] = useState({});
+  const {
+    questionsData,
+    currentQuestion,
+    nextQuestion,
+    selectQuestion,
+    isLastQuestion,
+  } = useQuestionManager();
 
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      const questions = await getQuestionsFromMarkdown("https://raw.githubusercontent.com/kunxin-chor/js-code-tutorial/refactoring/questions.md");
-      setQuestionsData(questions);
-      
-      // Load progress from localStorage
-      const savedProgress = loadProgress();
-      if (savedProgress) {
-        setUserProgress(savedProgress);
-        setCurrentQuestion(savedProgress.currentQuestion || 0);
-      } else if (questions.length > 0) {
-        setCurrentQuestion(0);
-      }
-    };
-    fetchQuestions();
-  }, []);
-  
+  const {
+    userProgress,
+    updateProgress,
+    getCompletedQuestions,
+  } = useProgressTracker(currentQuestion);
+
+  const {
+    code,
+    setCode,
+    testResults,
+    setTestResults,
+    allPassing,
+    attempts,
+    showSolution,
+    runUserCode,
+    resetQuestion,
+    viewSolution,
+  } = useCodeRunner();
+
   useEffect(() => {
     if (questionsData.length > 0) {
-      initializeQuestionState();
-    }
-  }, [currentQuestion, questionsData, userProgress]);
-
-  useEffect(() => {
-    // Save progress to localStorage whenever it changes
-    if (Object.keys(userProgress).length > 0) {
-      saveProgress(userProgress);
-    }
-  }, [userProgress]);
-
-  const initializeQuestionState = () => {
-    const questionProgress = userProgress[currentQuestion] || {};
-    setCode(questionProgress.code || questionsData[currentQuestion].initialCode);
-    setTestResults(questionProgress.testResults || 
-      questionsData[currentQuestion].testCases.map(tc => ({ ...tc, result: null, passed: null })));
-    setAllPassing(questionProgress.completed || false);
-    setAttempts(questionProgress.attempts || 0);
-    setShowSolution(questionProgress.viewedSolution || false);
-  };
-
-  const resetQuestion = () => {
-    setCode(questionsData[currentQuestion].initialCode);
-    setTestResults(questionsData[currentQuestion].testCases.map(tc => ({ 
-      ...tc, 
-      result: null, 
-      passed: null 
-    })));
-    setAllPassing(false);
-    setAttempts(0);
-    setShowSolution(false);
-
-    // Update userProgress to reflect the reset state
-    setUserProgress(prev => ({
-      ...prev,
-      [currentQuestion]: {
-        code: questionsData[currentQuestion].initialCode,
-        completed: false,
-        attempts: 0,
-        testResults: questionsData[currentQuestion].testCases.map(tc => ({ 
-          ...tc, 
-          result: null, 
-          passed: null 
-        })),
-        viewedSolution: false
+      const questionProgress = userProgress[currentQuestion] || {};
+      const currentQuestionData = questionsData[currentQuestion];
+      resetQuestion(
+        questionProgress.code || currentQuestionData.initialCode,
+        currentQuestionData.testCases
+      );
+      if (questionProgress.testResults) {
+        setTestResults(questionProgress.testResults);
       }
-    }));
-  };
+    }
+  }, [currentQuestion, questionsData, userProgress, resetQuestion, setTestResults]);
 
   const handleRunCode = () => {
-    const results = runCode(code, questionsData[currentQuestion].testCases);
-    setTestResults(results);
-    const passing = results.every(r => r.passed);
-    setAllPassing(passing);
-    const newAttempts = attempts + 1;
-    setAttempts(newAttempts);
-
-    setUserProgress(prev => ({
-      ...prev,
-      currentQuestion,
-      [currentQuestion]: {
-        code,
-        completed: passing,
-        attempts: newAttempts,
-        lastAttemptDate: new Date().toISOString(),
-        testResults: results
-      }
-    }));
+    const currentQuestionData = questionsData[currentQuestion];
+    const { results, passing } = runUserCode(currentQuestionData.testCases);
+    updateProgress(currentQuestion, {
+      code,
+      completed: passing,
+      attempts: attempts + 1,
+      lastAttemptDate: new Date().toISOString(),
+      testResults: results,
+    });
   };
 
   const handleViewSolution = () => {
-    setShowSolution(true);
-    
-    setUserProgress(prev => ({
-      ...prev,
-      [currentQuestion]: {
-        ...prev[currentQuestion],
-        viewedSolution: true
-      }
-    }));
+    viewSolution();
+    updateProgress(currentQuestion, { viewedSolution: true });
   };
 
-  const nextQuestion = () => {
-    if (currentQuestion < questionsData.length - 1) {
-      const nextQuestionIndex = currentQuestion + 1;
-      setCurrentQuestion(nextQuestionIndex);
-      setUserProgress(prev => ({ ...prev, currentQuestion: nextQuestionIndex }));
-    }
-  };
-
-  const selectQuestion = (index) => {
-    setCurrentQuestion(index);
-    setUserProgress(prev => ({ ...prev, currentQuestion: index }));
-  };
-
-  const getCompletedQuestions = () => {
-    return Object.entries(userProgress)
-      .filter(([key, value]) => key !== 'currentQuestion' && value.completed)
-      .map(([key]) => parseInt(key));
+  const handleResetQuestion = () => {
+    const currentQuestionData = questionsData[currentQuestion];
+    resetQuestion(currentQuestionData.initialCode, currentQuestionData.testCases);
+    updateProgress(currentQuestion, {
+      code: currentQuestionData.initialCode,
+      completed: false,
+      attempts: 0,
+      testResults: currentQuestionData.testCases.map(tc => ({ ...tc, result: null, passed: null })),
+      viewedSolution: false,
+    });
   };
 
   return (
@@ -157,12 +98,10 @@ const App = () => {
               onRunCode={handleRunCode} 
               onViewSolution={handleViewSolution}
               onNextQuestion={nextQuestion}
-              onResetQuestion={resetQuestion}
-              isLastQuestion={currentQuestion >= questionsData.length - 1}
+              onResetQuestion={handleResetQuestion}
+              isLastQuestion={isLastQuestion}
             />
-            <TestResults 
-              testResults={testResults}
-            />
+            <TestResults testResults={testResults} />
             <ExplanationSection explanation={questionsData[currentQuestion].explanation} />
             {showSolution && (
               <SolutionDisplay solution={questionsData[currentQuestion].solution} />
