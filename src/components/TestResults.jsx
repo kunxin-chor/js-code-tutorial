@@ -2,6 +2,7 @@ import React from 'react';
 import { formatOutput } from '../utils/formatUtils';
 
 const TestResults = ({ testResults }) => {
+  console.log(testResults);
   return (
     <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
       <h3 style={{ color: '#333' }}>Test Results</h3>
@@ -29,15 +30,15 @@ const TestResults = ({ testResults }) => {
                 {result.result !== null ? formatOutput(result.result) : 'Not run yet'}
               </td>
               <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                {result.passed === null ? 'Not run yet' :
+                {result.result === null ? 'Not run yet' :
                   result.passed ? '✅ PASS' : '❌ FAIL'}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>)
+    </div>
+  )
 }
-
 
 export default TestResults;

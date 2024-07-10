@@ -10,7 +10,7 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
   const runUserCode = useCallback((testCases = [], questionId) => {
     if (!code || testCases.length === 0) {
       console.warn('No code or test cases provided');
-      return { results: [], passing: false };
+      return { results: [], passing: false }
     }
 
     try {

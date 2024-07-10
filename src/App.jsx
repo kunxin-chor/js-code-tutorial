@@ -57,18 +57,21 @@ const App = () => {
       if (questionProgress.completed && questionProgress.testResults) {
         // If the question was previously completed, use the stored test results
         setTestResults(questionProgress.testResults);
-      } else {
-        // Otherwise, initialize the test results with the current question's test cases
+      } else if (!codeHasRun) {
+        // Only initialize test results if the code hasn't been run yet
         setTestResults(currentQuestion.testCases.map(tc => ({
           ...tc,
           result: null,
           passed: null
         })));
       }
-      
-      setCodeHasRun(false);
+      // Don't reset codeHasRun here
     }
-  }, [currentQuestion, userProgress, setCode, setTestResults]);
+  }, [currentQuestion, userProgress, setCode, setTestResults, codeHasRun]);
+
+  useEffect(() => {
+    setCodeHasRun(false);
+  }, [currentQuestion]);
 
   const handleRunCode = useCallback(() => {
     if (!currentQuestion) return;
@@ -78,7 +81,7 @@ const App = () => {
       return {
         ...testCase,
         result: result ? result.result : null,
-        passed: result ? result.passed : null,
+        passed: result ? result.passed : false, // Change null to false
       };
     });
     
