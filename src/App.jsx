@@ -83,16 +83,14 @@ const App = () => {
     const { results, passing, error } = runUserCode(currentQuestion.testCases, currentQuestion.id);
     
     if (error) {
-      // The error is already set in the useCodeRunner hook, so we don't need to set it here
       setCodeHasRun(true);
       return;
     }
     
-    // Clear any previous error message
     setErrorMessage(null);
     
-    const updatedResults = currentQuestion.testCases.map(testCase => {
-      const result = results.find(r => r.id === testCase.id);
+    const updatedResults = currentQuestion.testCases.map((testCase, index) => {
+      const result = results[index]; // Match by index instead of id
       return {
         ...testCase,
         result: result ? result.result : 'Test not run',

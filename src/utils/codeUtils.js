@@ -3,6 +3,7 @@ const runCode = (code, testCases) => {
     let result;
     let consoleOutput = [];
     const originalConsoleLog = console.log;
+  
     
     try {
       console.log = (...args) => {
@@ -18,23 +19,35 @@ const runCode = (code, testCases) => {
         throw new Error('Unexpected prompt or out of prompts');
       };
 
-      if (type === "console") {
-        const testFunction = new Function('prompt', `
-          ${code}
-          ${func};
-        `);
-        testFunction(mockPrompt);
-        result = consoleOutput.join('\n');
-      } else {
-        const testFunction = new Function('prompt', `
+      // Create a new execution context for each test case
+      const executionContext = {
+        prompt: mockPrompt,
+        console: { log: console.log }
+      };
+
+      // Execute the user's code in the new context
+      const userFunction = new Function('context', `
+        with (context) {
           ${code}
           return ${func};
-        `);
-        result = testFunction(mockPrompt);
+        }
+      `);
+      
+      result = userFunction(executionContext);
+      
+      
+
+      if (type === "console") {
+        originalConsoleLog("console output =>", consoleOutput);
+        result = consoleOutput.join('\n');
       }
 
+      originalConsoleLog("result =>", result);
+
       const passed = compareResults(result, expected);
-      return { func, expected, result, passed, type };
+      const returnObj  = { func, expected, result, passed, type }
+      console.log("returnObj =>", returnObj);
+      return returnObj;
     } catch (error) {
       return { 
         func, 
