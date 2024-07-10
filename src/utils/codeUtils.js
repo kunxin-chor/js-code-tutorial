@@ -42,7 +42,7 @@ const runCode = (code, testCases) => {
         result: error.toString(), 
         passed: false, 
         type, 
-        error: `Error in test case "${func}": ${error.message}`
+        error: func ? `Error in test case "${func}": ${error.message}` : `Error: ${error.message}`
       };
     } finally {
       console.log = originalConsoleLog;  // Restore original console.log

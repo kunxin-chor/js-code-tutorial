@@ -21,11 +21,11 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
       // Check if any test case resulted in an error
       const errorResult = results.find(r => r.error);
       if (errorResult) {
-        setError(errorResult.error);
+        setError(`Error in test case "${errorResult.func}": ${errorResult.error}`);
         setTestResults(results);
         setAllPassing(false);
         setAttempts(prev => prev + 1);
-        return { results, passing: false, error: errorResult.error };
+        return { results, passing: false, error: `Error in test case "${errorResult.func}": ${errorResult.error}` };
       }
       
       setTestResults(results);
