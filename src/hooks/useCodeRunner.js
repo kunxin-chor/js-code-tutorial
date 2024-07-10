@@ -6,30 +6,42 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
   const [testResults, setTestResults] = useState([]);
   const [allPassing, setAllPassing] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [error, setError] = useState(null);
 
   const runUserCode = useCallback((testCases = [], questionId) => {
     if (!code || testCases.length === 0) {
-      console.warn('No code or test cases provided');
-      return { results: [], passing: false }
+      const errorMsg = 'No code or test cases provided';
+      setError(errorMsg);
+      return { results: [], passing: false, error: errorMsg };
     }
 
     try {
       const results = runCode(code, testCases, questionId);
-      if (!Array.isArray(results)) {
-        console.error('runCode did not return an array:', results);
-        return { results: [], passing: false };
+      
+      // Check if any test case resulted in an error
+      const errorResult = results.find(r => r.error);
+      if (errorResult) {
+        setError(errorResult.error);
+        setTestResults(results);
+        setAllPassing(false);
+        setAttempts(prev => prev + 1);
+        return { results, passing: false, error: errorResult.error };
       }
+      
       setTestResults(results);
       const passing = results.every(r => r.passed);
       setAllPassing(passing);
       setAttempts(prev => prev + 1);
-      return { results, passing };
+      setError(null);
+      return { results, passing, error: null };
     } catch (error) {
       console.error('Error running code:', error);
       setTestResults([]);
       setAllPassing(false);
       setAttempts(prev => prev + 1);
-      return { results: [], passing: false };
+      const errorMessage = error.message || 'An error occurred while running the code';
+      setError(errorMessage);
+      return { results: [], passing: false, error: errorMessage };
     }
   }, [code]);
 
@@ -42,6 +54,7 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
     })));
     setAllPassing(false);
     setAttempts(0);
+    setError(null);
   }, []);
 
   return {
@@ -53,5 +66,7 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
     attempts,
     runUserCode,
     resetQuestion,
+    error,
+    setError,
   };
 };

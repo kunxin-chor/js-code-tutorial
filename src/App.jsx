@@ -12,12 +12,14 @@ import WalkthroughDisplay from './components/WalkthroughDisplay';
 import { useQuestionManager } from './hooks/useQuestionManager';
 import { useProgressTracker } from './hooks/useProgressTracker';
 import { useCodeRunner } from './hooks/useCodeRunner';
+import ErrorDisplay from './components/ErrorDisplay';
 
 const App = () => {
   const [showSolution, setShowSolution] = useState(false);
   const [showHints, setShowHints] = useState(false);
   const [showWalkthrough, setShowWalkthrough] = useState(false);
   const [codeHasRun, setCodeHasRun] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const {
     currentQuestion,
@@ -45,6 +47,8 @@ const App = () => {
     attempts,
     runUserCode,
     resetQuestion,
+    error,
+    setError,
   } = useCodeRunner();
 
   useEffect(() => {
@@ -75,13 +79,24 @@ const App = () => {
 
   const handleRunCode = useCallback(() => {
     if (!currentQuestion) return;
-    const { results, passing } = runUserCode(currentQuestion.testCases, currentQuestion.id);
+    
+    const { results, passing, error } = runUserCode(currentQuestion.testCases, currentQuestion.id);
+    
+    if (error) {
+      // The error is already set in the useCodeRunner hook, so we don't need to set it here
+      setCodeHasRun(true);
+      return;
+    }
+    
+    // Clear any previous error message
+    setErrorMessage(null);
+    
     const updatedResults = currentQuestion.testCases.map(testCase => {
       const result = results.find(r => r.id === testCase.id);
       return {
         ...testCase,
-        result: result ? result.result : null,
-        passed: result ? result.passed : false, // Change null to false
+        result: result ? result.result : 'Test not run',
+        passed: result ? result.passed : false,
       };
     });
     
@@ -153,6 +168,7 @@ const App = () => {
           <>
             <QuestionDisplay question={currentQuestion} />
             <CodeEditor code={code} setCode={setCode} />
+            <ErrorDisplay errorMessage={error} />
             <ActionButtons 
               onRunCode={handleRunCode} 
               onViewSolution={handleViewSolution}
