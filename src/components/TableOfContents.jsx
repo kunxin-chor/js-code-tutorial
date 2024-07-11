@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight, faCheck } from '@fortawesome/free-solid-svg-icons';
 
-const TableOfContents = React.memo(({ manifest, currentQuestionId, userProgress, selectQuestion }) => {
+const TableOfContents = ({ manifest, currentQuestionId, userProgress, selectQuestion }) => {
   const [userExpandedCategories, setUserExpandedCategories] = useState({});
 
   const getCategoryForQuestion = useCallback((questionId) => {
@@ -89,6 +89,6 @@ const TableOfContents = React.memo(({ manifest, currentQuestionId, userProgress,
       ))}
     </div>
   );
-});
+};
 
 export default TableOfContents;

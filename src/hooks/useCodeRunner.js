@@ -17,7 +17,7 @@ export const useCodeRunner = (initialCode = '', initialTestCases = []) => {
 
     try {
       const results = runCode(code, testCases, questionId);
-      
+      console.log("r in useCodeRunner =>", results);
       // Check if any test case resulted in an error
       const errorResult = results.find(r => r.error);
       if (errorResult) {

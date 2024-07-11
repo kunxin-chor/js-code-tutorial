@@ -2,7 +2,6 @@ import React from 'react';
 import { formatOutput } from '../utils/formatUtils';
 
 const TestResults = ({ testResults }) => {
-  console.log(testResults);
   return (
     <div style={{ marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px', padding: '15px' }}>
       <h3 style={{ color: '#333' }}>Test Results</h3>
@@ -21,7 +20,7 @@ const TestResults = ({ testResults }) => {
             <tr key={index}>
               <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{result.func}</td>
               <td style={{ padding: '10px', borderBottom: '1px solid #ddd', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
-                {Array.isArray(result.prompts) ? result.prompts.join(', ') : result.prompts}
+                {result.prompts ? result.prompts.join(', ') : 'N/A'}
               </td>
               <td style={{ padding: '10px', borderBottom: '1px solid #ddd', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                 {formatOutput(result.expected)}

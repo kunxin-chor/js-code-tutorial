@@ -85,13 +85,19 @@ const App = () => {
   const handleRunCode = useCallback(() => {
     const { code, currentQuestion, currentQuestionId } = state;
     const { results, passing, error } = codeRunnerService.runUserCode(code, currentQuestion.testCases, currentQuestionId);
+    console.log("r =>", results);
+    // Include prompts in the results
+    const resultsWithPrompts = currentQuestion.testCases.map((testCase, index) => ({
+      ...results[index],
+      prompts: testCase.prompts
+    }));
     
     const newAttempts = progressTrackerService.incrementAttempts(currentQuestionId);
     
     if (error) {
-      dispatch({ type: 'RUN_CODE_FAILURE', payload: { error, results, attempts: newAttempts } });
+      dispatch({ type: 'RUN_CODE_FAILURE', payload: { error, results: resultsWithPrompts, attempts: newAttempts } });
     } else {
-      dispatch({ type: 'RUN_CODE_SUCCESS', payload: { results, passing, attempts: newAttempts } });
+      dispatch({ type: 'RUN_CODE_SUCCESS', payload: { results: resultsWithPrompts, passing, attempts: newAttempts } });
       
       // Update user progress if all tests passed
       if (passing) {
@@ -130,7 +136,9 @@ const App = () => {
       type: 'RESET_QUESTION', 
       payload: { 
         ...resetState, 
-        userProgress: updatedProgress 
+        userProgress: updatedProgress,
+        allPassing: false,
+        attempts: 0
       } 
     });
   }, [state]);
@@ -157,7 +165,7 @@ const App = () => {
         <TableOfContents 
           manifest={state.manifest}
           currentQuestionId={state.currentQuestionId}
-          userProgress={state.userProgress}  // Ensure this is being updated in your reducer
+          userProgress={state.userProgress}
           selectQuestion={handleQuestionChange}
         />
       )}

@@ -9,7 +9,7 @@ function runUserCode(code, testCases, questionId) {
 
   try {
     const results = runCode(code, testCases, questionId);
-    
+    console.log("results in codeRunnerService =>", results);
     const errorResult = results.find(r => r.error);
     if (errorResult) {
       progressTrackerService.saveTestResults(questionId, results);

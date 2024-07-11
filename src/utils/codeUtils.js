@@ -12,6 +12,7 @@ const runCode = (code, testCases) => {
       };
 
       let promptIndex = 0;
+   
       const mockPrompt = () => {
         if (prompts && promptIndex < prompts.length) {
           return prompts[promptIndex++];
@@ -34,20 +35,14 @@ const runCode = (code, testCases) => {
       `);
       
       result = userFunction(executionContext);
-      
-      
-
+      originalConsoleLog("r=>",result);
       if (type === "console") {
-        originalConsoleLog("console output =>", consoleOutput);
         result = consoleOutput.join('\n');
       }
 
-      originalConsoleLog("result =>", result);
-
       const passed = compareResults(result, expected);
-      const returnObj  = { func, expected, result, passed, type }
-      console.log("returnObj =>", returnObj);
-      return returnObj;
+
+      return { func, expected, result, passed, type, prompts };
     } catch (error) {
       return { 
         func, 
@@ -55,7 +50,8 @@ const runCode = (code, testCases) => {
         result: error.toString(), 
         passed: false, 
         type, 
-        error: func ? `Error in test case "${func}": ${error.message}` : `Error: ${error.message}`
+        error: func ? `Error in test case "${func}": ${error.message}` : `Error: ${error.message}`,
+        prompts
       };
     } finally {
       console.log = originalConsoleLog;  // Restore original console.log
@@ -66,7 +62,7 @@ const runCode = (code, testCases) => {
   if (results.every(r => r.error)) {
     throw new Error(results[0].error);
   }
-
+  console.log("results in runCode =>", results);
   return results;
 };
 

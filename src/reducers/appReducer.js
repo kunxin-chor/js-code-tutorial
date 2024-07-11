@@ -98,16 +98,17 @@ function appReducer(state, action) {
       };
 
     case 'RESET_QUESTION':
-      const resetState = codeRunnerService.resetQuestion(
-        state.currentQuestion.initialCode,
-        state.currentQuestion.testCases
-      );
       return {
         ...state,
-        ...resetState,
+        code: action.payload.code,
+        testResults: action.payload.testResults,
+        error: null,
         showSolution: false,
         showHints: false,
         showWalkthrough: false,
+        attempts: 0,
+        allPassing: false,
+        userProgress: action.payload.userProgress
       };
 
     default:
