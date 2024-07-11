@@ -23,13 +23,15 @@ const App = () => {
       const question = await questionManagerService.loadQuestionById(manifest, questionId);
       const savedCode = progressTrackerService.getSavedCode(questionId);
       const savedTestResults = progressTrackerService.getSavedTestResults(questionId);
+      const savedAttempts = progressTrackerService.getAttempts(questionId);
       dispatch({ 
         type: 'SET_CURRENT_QUESTION', 
         payload: { 
           question, 
           questionId, 
           code: savedCode || question.initialCode,
-          testResults: savedTestResults || question.testCases.map(tc => ({ ...tc, result: null, passed: null }))
+          testResults: savedTestResults || question.testCases.map(tc => ({ ...tc, result: null, passed: null })),
+          attempts: savedAttempts
         } 
       });
     } catch (error) {
@@ -84,28 +86,62 @@ const App = () => {
     const { code, currentQuestion, currentQuestionId } = state;
     const { results, passing, error } = codeRunnerService.runUserCode(code, currentQuestion.testCases, currentQuestionId);
     
+    const newAttempts = progressTrackerService.incrementAttempts(currentQuestionId);
+    
     if (error) {
-      dispatch({ type: 'RUN_CODE_FAILURE', payload: { error, results } });
+      dispatch({ type: 'RUN_CODE_FAILURE', payload: { error, results, attempts: newAttempts } });
     } else {
-      dispatch({ type: 'RUN_CODE_SUCCESS', payload: { results, passing } });
+      dispatch({ type: 'RUN_CODE_SUCCESS', payload: { results, passing, attempts: newAttempts } });
+      
+      // Update user progress if all tests passed
+      if (passing) {
+        const updatedProgress = progressTrackerService.updateProgress(
+          state.userProgress,
+          currentQuestionId,
+          { allPassing: true }
+        );
+        dispatch({ type: 'SET_USER_PROGRESS', payload: updatedProgress });
+      }
     }
+    
+    console.log('New attempts:', newAttempts); // Add this line for debugging
   }, [state]);
 
   const handleViewSolution = useCallback(() => {
-    dispatch({ type: 'VIEW_SOLUTION' });
-  }, []);
+    const canViewSolution = state.attempts >= 3 || state.allPassing;
+    if (canViewSolution) {
+      dispatch({ type: 'SET_SHOW_SOLUTION', payload: true });
+    }
+  }, [state.attempts, state.allPassing]);
 
   const handleResetQuestion = useCallback(() => {
-    dispatch({ type: 'RESET_QUESTION' });
-  }, []);
+    const { currentQuestionId, currentQuestion } = state;
+    
+    // Reset the question in the progressTrackerService
+    const updatedProgress = progressTrackerService.resetQuestionProgress(currentQuestionId);
+    
+    // Reset the code to its initial state
+    const resetState = codeRunnerService.resetQuestion(
+      currentQuestion.initialCode,
+      currentQuestion.testCases
+    );
+    
+    dispatch({ 
+      type: 'RESET_QUESTION', 
+      payload: { 
+        ...resetState, 
+        userProgress: updatedProgress 
+      } 
+    });
+  }, [state]);
 
   const toggleHints = useCallback(() => {
     dispatch({ type: 'TOGGLE_HINTS' });
   }, []);
 
   const toggleWalkthrough = useCallback(() => {
-    dispatch({ type: 'TOGGLE_WALKTHROUGH' });
-  }, []);
+    dispatch({ type: 'SET_SHOW_WALKTHROUGH', payload: !state.showWalkthrough });
+  }, [state.showWalkthrough]);
 
   const handleNextQuestion = useCallback(async () => {
     const nextQuestionId = questionManagerService.getNextQuestionId(state.manifest, state.currentQuestionId);
@@ -121,7 +157,7 @@ const App = () => {
         <TableOfContents 
           manifest={state.manifest}
           currentQuestionId={state.currentQuestionId}
-          userProgress={state.userProgress}
+          userProgress={state.userProgress}  // Ensure this is being updated in your reducer
           selectQuestion={handleQuestionChange}
         />
       )}
@@ -142,6 +178,9 @@ const App = () => {
               onToggleHints={toggleHints}
               onToggleWalkthrough={toggleWalkthrough}
               isLastQuestion={state.isLastQuestion}
+              attemptsCount={state.attempts}
+              allTestsPassed={state.allPassing}
+              showSolutionThreshold={3}
             />
             <TestResults testResults={state.testResults} />
             {state.showHints && <HintsDisplay hints={state.currentQuestion.hints} />}

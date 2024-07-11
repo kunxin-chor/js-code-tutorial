@@ -50,6 +50,36 @@ function getLastAttemptedQuestionId() {
   return attemptedQuestions.length > 0 ? attemptedQuestions[attemptedQuestions.length - 1] : null;
 }
 
+function saveAttempts(questionId, attempts) {
+  const progress = loadProgress() || {};
+  progress[questionId] = { ...progress[questionId], attempts };
+  saveProgress(progress);
+}
+
+function getAttempts(questionId) {
+  const progress = loadProgress() || {};
+  return progress[questionId]?.attempts || 0;
+}
+
+function incrementAttempts(questionId) {
+  const currentAttempts = getAttempts(questionId);
+  saveAttempts(questionId, currentAttempts + 1);
+  return currentAttempts + 1;
+}
+
+function resetQuestionProgress(questionId) {
+  const progress = loadProgress() || {};
+  if (progress[questionId]) {
+    progress[questionId] = {
+      ...progress[questionId],
+      allPassing: false,
+      attempts: 0
+    };
+    saveProgress(progress);
+  }
+  return progress;
+}
+
 export const progressTrackerService = {
   loadUserProgress,
   updateProgress,
@@ -59,4 +89,8 @@ export const progressTrackerService = {
   saveTestResults,
   getSavedTestResults,
   getLastAttemptedQuestionId,
+  saveAttempts,
+  getAttempts,
+  incrementAttempts,
+  resetQuestionProgress,
 };

@@ -31,11 +31,12 @@ function appReducer(state, action) {
         currentQuestionId: action.payload.questionId, 
         code: action.payload.code, 
         codeHasRun: false,
-        testResults: action.payload.testResults || action.payload.question.testCases.map(tc => ({ ...tc, result: null, passed: null })),
-        error: null, // Reset the error when changing questions
-        showSolution: false, // Reset solution visibility
-        showHints: false, // Reset hints visibility
-        showWalkthrough: false // Reset walkthrough visibility
+        testResults: action.payload.testResults,
+        attempts: action.payload.attempts,
+        error: null,
+        showSolution: false,
+        showHints: false,
+        showWalkthrough: false
       };
     case 'SET_CODE':
       progressTrackerService.saveCode(state.currentQuestionId, action.payload);
@@ -45,6 +46,7 @@ function appReducer(state, action) {
     case 'SET_ERROR':
       return { ...state, error: action.payload };
     case 'SET_SHOW_SOLUTION':
+      console.log("show solution");
       return { ...state, showSolution: action.payload };
     case 'SET_SHOW_HINTS':
       return { ...state, showHints: action.payload };
@@ -82,6 +84,7 @@ function appReducer(state, action) {
         allPassing: action.payload.passing,
         error: null,
         codeHasRun: true,
+        attempts: action.payload.attempts,
       };
 
     case 'RUN_CODE_FAILURE':
@@ -91,6 +94,7 @@ function appReducer(state, action) {
         testResults: action.payload.results,
         allPassing: false,
         codeHasRun: true,
+        attempts: action.payload.attempts,
       };
 
     case 'RESET_QUESTION':

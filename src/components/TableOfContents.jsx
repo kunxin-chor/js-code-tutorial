@@ -1,25 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight, faCheck } from '@fortawesome/free-solid-svg-icons';
 
-const TableOfContents = ({ manifest, currentQuestionId, userProgress, selectQuestion }) => {
-  const getCategoryForQuestion = (questionId) => {
+const TableOfContents = React.memo(({ manifest, currentQuestionId, userProgress, selectQuestion }) => {
+  const [userExpandedCategories, setUserExpandedCategories] = useState({});
+
+  const getCategoryForQuestion = useCallback((questionId) => {
     return manifest?.categories.find(category => 
       category.questions.some(question => question.id === questionId)
     );
-  };
+  }, [manifest]);
 
-  const currentCategory = getCategoryForQuestion(currentQuestionId);
-  
-  const [userExpandedCategories, setUserExpandedCategories] = useState({});
+  const currentCategory = useMemo(() => getCategoryForQuestion(currentQuestionId), [getCategoryForQuestion, currentQuestionId]);
 
-  if (!manifest) return null;
+  const isQuestionCompleted = useCallback((questionId) => {
+    const questionProgress = userProgress[questionId];
+    return questionProgress && questionProgress.allPassing;
+  }, [userProgress]);
 
-  const isQuestionCompleted = (questionId) => {
-    return userProgress && userProgress[questionId]?.completed || false;
-  };
-
-  const toggleCategory = (categoryName) => {
+  const toggleCategory = useCallback((categoryName) => {
     setUserExpandedCategories(prev => {
       const newState = { ...prev };
       if (newState[categoryName]) {
@@ -29,13 +28,15 @@ const TableOfContents = ({ manifest, currentQuestionId, userProgress, selectQues
       }
       return newState;
     });
-  };
+  }, []);
 
-  const isCategoryExpanded = (categoryName) => {
+  const isCategoryExpanded = useCallback((categoryName) => {
     return userExpandedCategories.hasOwnProperty(categoryName) 
       ? userExpandedCategories[categoryName]
       : (currentCategory && currentCategory.name === categoryName);
-  };
+  }, [userExpandedCategories, currentCategory]);
+
+  if (!manifest) return null;
 
   return (
     <div style={{
@@ -78,7 +79,7 @@ const TableOfContents = ({ manifest, currentQuestionId, userProgress, selectQues
                 >
                   <span>{question.title || 'Untitled Question'}</span>
                   {isQuestionCompleted(question.id) && (
-                    <span style={{ color: 'green' }}>✓</span>
+                    <FontAwesomeIcon icon={faCheck} style={{ color: 'green' }} />
                   )}
                 </li>
               ))}
@@ -88,6 +89,6 @@ const TableOfContents = ({ manifest, currentQuestionId, userProgress, selectQues
       ))}
     </div>
   );
-};
+});
 
 export default TableOfContents;
