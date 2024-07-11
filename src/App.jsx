@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useReducer, useCallback, useEffect } from 'react';
 import QuestionDisplay from './components/QuestionDisplay';
 import CodeEditor from './components/CodeEditor';
 import TestResults from './components/TestResults';
@@ -9,180 +9,121 @@ import TableOfContents from './components/TableOfContents';
 import LoadingOverlay from './components/LoadingOverlay';
 import HintsDisplay from './components/HintsDisplay';
 import WalkthroughDisplay from './components/WalkthroughDisplay';
-import { useQuestionManager } from './hooks/useQuestionManager';
-import { useProgressTracker } from './hooks/useProgressTracker';
-import { useCodeRunner } from './hooks/useCodeRunner';
 import ErrorDisplay from './components/ErrorDisplay';
+import { appReducer, initialState } from './reducers/appReducer';
+import { questionManagerService } from './services/questionManagerService';
+import { progressTrackerService } from './services/progressTrackerService';
 
 const App = () => {
-  const [showSolution, setShowSolution] = useState(false);
-  const [showHints, setShowHints] = useState(false);
-  const [showWalkthrough, setShowWalkthrough] = useState(false);
-  const [codeHasRun, setCodeHasRun] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
-
-  const {
-    currentQuestion,
-    currentQuestionId,
-    categories,
-    nextQuestion,
-    selectQuestion,
-    isLastQuestion,
-    loading,
-    manifest
-  } = useQuestionManager();
-
-  const {
-    userProgress,
-    updateProgress,
-    getCompletedQuestions,
-  } = useProgressTracker();
-
-  const {
-    code,
-    setCode,
-    testResults,
-    setTestResults,
-    allPassing,
-    attempts,
-    runUserCode,
-    resetQuestion,
-    error,
-    setError,
-  } = useCodeRunner();
+  const [state, dispatch] = useReducer(appReducer, initialState);
 
   useEffect(() => {
-    if (currentQuestion) {
-      const questionProgress = userProgress[currentQuestion.id] || {};
-      const initialCode = questionProgress.code || currentQuestion.initialCode;
-      
-      setCode(initialCode);
-      
-      if (questionProgress.completed && questionProgress.testResults) {
-        // If the question was previously completed, use the stored test results
-        setTestResults(questionProgress.testResults);
-      } else if (!codeHasRun) {
-        // Only initialize test results if the code hasn't been run yet
-        setTestResults(currentQuestion.testCases.map(tc => ({
-          ...tc,
-          result: null,
-          passed: null
-        })));
+    async function initializeApp() {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      try {
+        const manifest = await questionManagerService.fetchManifest();
+        const userProgress = progressTrackerService.loadUserProgress();
+        dispatch({ type: 'INITIALIZE_APP', payload: { manifest, userProgress } });
+
+        if (manifest.categories.length > 0 && manifest.categories[0].questions.length > 0) {
+          const firstQuestionId = manifest.categories[0].questions[0].id;
+          const question = await questionManagerService.loadQuestionById(manifest, firstQuestionId);
+          dispatch({ type: 'SET_CURRENT_QUESTION', payload: { question, questionId: firstQuestionId } });
+        }
+      } catch (error) {
+        console.error('Error initializing app:', error);
+        dispatch({ type: 'SET_ERROR', payload: 'Failed to initialize the app. Please try again.' });
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
       }
-      // Don't reset codeHasRun here
     }
-  }, [currentQuestion, userProgress, setCode, setTestResults, codeHasRun]);
-
-  useEffect(() => {
-    setCodeHasRun(false);
-  }, [currentQuestion]);
+    initializeApp();
+  }, []);
 
   const handleRunCode = useCallback(() => {
-    if (!currentQuestion) return;
-    
-    const { results, passing, error } = runUserCode(currentQuestion.testCases, currentQuestion.id);
-    
-    if (error) {
-      setCodeHasRun(true);
-      return;
-    }
-    
-    setErrorMessage(null);
-    
-    const updatedResults = currentQuestion.testCases.map((testCase, index) => {
-      const result = results[index]; // Match by index instead of id
-      return {
-        ...testCase,
-        result: result ? result.result : 'Test not run',
-        passed: result ? result.passed : false,
-      };
-    });
-    
-    console.log('Updated test results:', updatedResults);
-    
-    setTestResults(updatedResults);
-    setCodeHasRun(true);
-    
-    const updatedProgress = {
-      code,
-      completed: passing,
-      attempts: attempts + 1,
-      lastAttemptDate: new Date().toISOString(),
-      testResults: updatedResults,
-    };
-    
-    updateProgress(currentQuestion.id, updatedProgress);
-  }, [currentQuestion, runUserCode, updateProgress, code, attempts]);
+    dispatch({ type: 'RUN_CODE' });
+  }, []);
 
   const handleViewSolution = useCallback(() => {
-    setShowSolution(true);
-    updateProgress(currentQuestion.id, { viewedSolution: true });
-  }, [updateProgress, currentQuestion]);
+    dispatch({ type: 'VIEW_SOLUTION' });
+  }, []);
 
   const handleResetQuestion = useCallback(() => {
-    if (!currentQuestion) return;
-    resetQuestion(currentQuestion.initialCode, currentQuestion.testCases);
-    setTestResults(currentQuestion.testCases.map(tc => ({ ...tc, result: null, passed: null })));
-    setCodeHasRun(false);
-    updateProgress(currentQuestion.id, {
-      code: currentQuestion.initialCode,
-      completed: false,
-      attempts: 0,
-      testResults: currentQuestion.testCases.map(tc => ({ ...tc, result: null, passed: null })),
-      viewedSolution: false,
-    });
-  }, [currentQuestion, resetQuestion, setTestResults, updateProgress]);
+    dispatch({ type: 'RESET_QUESTION' });
+  }, []);
 
   const toggleHints = useCallback(() => {
-    setShowHints(prev => !prev);
+    dispatch({ type: 'TOGGLE_HINTS' });
   }, []);
 
   const toggleWalkthrough = useCallback(() => {
-    setShowWalkthrough(prev => !prev);
+    dispatch({ type: 'TOGGLE_WALKTHROUGH' });
   }, []);
 
-  useEffect(() => {
-    setShowSolution(false);
-    setShowHints(false);
-    setShowWalkthrough(false);
-  }, [currentQuestion]);
+  const handleQuestionChange = useCallback(async (newQuestionId) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const question = await questionManagerService.loadQuestionById(state.manifest, newQuestionId);
+      const savedCode = progressTrackerService.getSavedCode(newQuestionId);
+      dispatch({ 
+        type: 'SET_CURRENT_QUESTION', 
+        payload: { 
+          question, 
+          questionId: newQuestionId, 
+          code: savedCode || question.initialCode 
+        } 
+      });
+    } catch (error) {
+      console.error('Error changing question:', error);
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to load the question. Please try again.' });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [state.manifest]);
 
-  const handleQuestionChange = useCallback((newQuestionId) => {
-    setCodeHasRun(false);
-    selectQuestion(newQuestionId);
-  }, [selectQuestion]);
+  const handleNextQuestion = useCallback(async () => {
+    const nextQuestionId = questionManagerService.getNextQuestionId(state.manifest, state.currentQuestionId);
+    if (nextQuestionId) {
+      await handleQuestionChange(nextQuestionId);
+    }
+  }, [state.manifest, state.currentQuestionId, handleQuestionChange]);
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      {loading && <LoadingOverlay />}
-      <TableOfContents 
-        manifest={manifest}
-        currentQuestionId={currentQuestionId}
-        userProgress={userProgress}
-        selectQuestion={handleQuestionChange}
-      />
+      {state.loading && <LoadingOverlay />}
+      {state.manifest && (
+        <TableOfContents 
+          manifest={state.manifest}
+          currentQuestionId={state.currentQuestionId}
+          userProgress={state.userProgress}
+          selectQuestion={handleQuestionChange}
+        />
+      )}
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
-        {currentQuestion && (
+        {state.currentQuestion && (
           <>
-            <QuestionDisplay question={currentQuestion} />
-            <CodeEditor code={code} setCode={setCode} />
-            <ErrorDisplay errorMessage={error} />
+            <QuestionDisplay question={state.currentQuestion} />
+            <CodeEditor 
+              code={state.code} 
+              setCode={(newCode) => dispatch({ type: 'SET_CODE', payload: newCode })} 
+            />
+            <ErrorDisplay errorMessage={state.error} />
             <ActionButtons 
               onRunCode={handleRunCode} 
               onViewSolution={handleViewSolution}
-              onNextQuestion={nextQuestion}
+              onNextQuestion={handleNextQuestion}
               onResetQuestion={handleResetQuestion}
               onToggleHints={toggleHints}
               onToggleWalkthrough={toggleWalkthrough}
-              isLastQuestion={isLastQuestion}
+              isLastQuestion={state.isLastQuestion}
             />
-            <TestResults testResults={testResults} />
-            {showHints && <HintsDisplay hints={currentQuestion.hints} />}
-            {showWalkthrough && <WalkthroughDisplay walkthrough={currentQuestion.walkthrough} />}
-            {showSolution && (
+            <TestResults testResults={state.testResults} />
+            {state.showHints && <HintsDisplay hints={state.currentQuestion.hints} />}
+            {state.showWalkthrough && <WalkthroughDisplay walkthrough={state.currentQuestion.walkthrough} />}
+            {state.showSolution && (
               <>     
-                <SolutionDisplay solution={currentQuestion.solution} />
-                <ExplanationSection explanation={currentQuestion.explanation} />
+                <SolutionDisplay solution={state.currentQuestion.solution} />
+                <ExplanationSection explanation={state.currentQuestion.explanation} />
               </>
             )}
           </>
