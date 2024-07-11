@@ -33,10 +33,30 @@ function getSavedCode(questionId) {
   return progress[questionId]?.code || null;
 }
 
+function saveTestResults(questionId, testResults) {
+  const progress = loadProgress() || {};
+  progress[questionId] = { ...progress[questionId], testResults };
+  saveProgress(progress);
+}
+
+function getSavedTestResults(questionId) {
+  const progress = loadProgress() || {};
+  return progress[questionId]?.testResults || null;
+}
+
+function getLastAttemptedQuestionId() {
+  const progress = loadProgress() || {};
+  const attemptedQuestions = Object.keys(progress).filter(key => progress[key].code);
+  return attemptedQuestions.length > 0 ? attemptedQuestions[attemptedQuestions.length - 1] : null;
+}
+
 export const progressTrackerService = {
   loadUserProgress,
   updateProgress,
   getCompletedQuestions,
   saveCode,
   getSavedCode,
+  saveTestResults,
+  getSavedTestResults,
+  getLastAttemptedQuestionId,
 };

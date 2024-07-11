@@ -30,7 +30,12 @@ function appReducer(state, action) {
         currentQuestion: action.payload.question, 
         currentQuestionId: action.payload.questionId, 
         code: action.payload.code, 
-        codeHasRun: false 
+        codeHasRun: false,
+        testResults: action.payload.testResults || action.payload.question.testCases.map(tc => ({ ...tc, result: null, passed: null })),
+        error: null, // Reset the error when changing questions
+        showSolution: false, // Reset solution visibility
+        showHints: false, // Reset hints visibility
+        showWalkthrough: false // Reset walkthrough visibility
       };
     case 'SET_CODE':
       progressTrackerService.saveCode(state.currentQuestionId, action.payload);
@@ -70,35 +75,22 @@ function appReducer(state, action) {
         manifest: action.payload.manifest,
         userProgress: action.payload.userProgress,
       };
-    case 'RUN_CODE':
-      const { results, passing, error } = codeRunnerService.runUserCode(
-        state.code,
-        state.currentQuestion.testCases,
-        state.currentQuestionId
-      );
-
-      const newAttempts = state.attempts + 1;
-      
-      // Update user progress
-      const updatedProgress = progressTrackerService.updateProgress(
-        state.userProgress,
-        state.currentQuestionId,
-        {
-          attempts: newAttempts,
-          completed: passing,
-          code: state.code, // Save the current code in the progress
-        }
-      );
-
+    case 'RUN_CODE_SUCCESS':
       return {
         ...state,
-        testResults: results,
-        allPassing: passing,
-        attempts: newAttempts,
+        testResults: action.payload.results,
+        allPassing: action.payload.passing,
+        error: null,
         codeHasRun: true,
-        showSolution: passing, // Optionally show solution if all tests pass
-        error: error, // Set the error if there is one
-        userProgress: updatedProgress,
+      };
+
+    case 'RUN_CODE_FAILURE':
+      return {
+        ...state,
+        error: action.payload.error,
+        testResults: action.payload.results,
+        allPassing: false,
+        codeHasRun: true,
       };
 
     case 'RESET_QUESTION':
