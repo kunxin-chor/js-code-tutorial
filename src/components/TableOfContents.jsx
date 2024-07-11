@@ -1,22 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 const TableOfContents = ({ manifest, currentQuestionId, userProgress, selectQuestion }) => {
-  const [expandedCategories, setExpandedCategories] = useState({});
- 
-  if (!manifest) return null;
-
-  const toggleCategory = (categoryName) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [categoryName]: !prev[categoryName]
-    }));
+  const getCategoryForQuestion = (questionId) => {
+    return manifest?.categories.find(category => 
+      category.questions.some(question => question.id === questionId)
+    );
   };
 
+  const currentCategory = getCategoryForQuestion(currentQuestionId);
+  
+  const [userExpandedCategories, setUserExpandedCategories] = useState({});
+
+  if (!manifest) return null;
+
   const isQuestionCompleted = (questionId) => {
-    const completed = userProgress && userProgress[questionId]?.completed;
-    return completed || false;
+    return userProgress && userProgress[questionId]?.completed || false;
+  };
+
+  const toggleCategory = (categoryName) => {
+    setUserExpandedCategories(prev => {
+      const newState = { ...prev };
+      if (newState[categoryName]) {
+        delete newState[categoryName];
+      } else {
+        newState[categoryName] = true;
+      }
+      return newState;
+    });
+  };
+
+  const isCategoryExpanded = (categoryName) => {
+    return userExpandedCategories.hasOwnProperty(categoryName) 
+      ? userExpandedCategories[categoryName]
+      : (currentCategory && currentCategory.name === categoryName);
   };
 
   return (
@@ -36,37 +54,34 @@ const TableOfContents = ({ manifest, currentQuestionId, userProgress, selectQues
             style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
           >
             <FontAwesomeIcon 
-              icon={expandedCategories[category.name] ? faChevronDown : faChevronRight} 
+              icon={isCategoryExpanded(category.name) ? faChevronDown : faChevronRight} 
               style={{ marginRight: '10px' }}
             />
             {category.name}
           </h3>
-          {expandedCategories[category.name] && (
+          {isCategoryExpanded(category.name) && (
             <ul style={{ listStyleType: 'none', padding: 0 }}>
-              {category.questions.map((question) => {
-                const completed = isQuestionCompleted(question.id);
-                return (
-                  <li 
-                    key={question.id}
-                    style={{
-                      padding: '10px',
-                      marginBottom: '10px',
-                      backgroundColor: question.id === currentQuestionId ? '#e0e0e0' : 'white',
-                      borderRadius: '5px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between'
-                    }}
-                    onClick={() => selectQuestion(question.id)}
-                  >
-                    <span>{question.title || 'Untitled Question'}</span>
-                    {completed && (
-                      <span style={{ color: 'green' }}>✓</span>
-                    )}
-                  </li>
-                );
-              })}
+              {category.questions.map((question) => (
+                <li 
+                  key={question.id}
+                  style={{
+                    padding: '10px',
+                    marginBottom: '10px',
+                    backgroundColor: question.id === currentQuestionId ? '#e0e0e0' : 'white',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                  onClick={() => selectQuestion(question.id)}
+                >
+                  <span>{question.title || 'Untitled Question'}</span>
+                  {isQuestionCompleted(question.id) && (
+                    <span style={{ color: 'green' }}>✓</span>
+                  )}
+                </li>
+              ))}
             </ul>
           )}
         </div>
