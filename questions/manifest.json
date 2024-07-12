@@ -25,7 +25,12 @@
       }, {
         "name": "Functions",
         "questions": [
-          { "title": "Add Two Numbers", "url": "03-functions/03-01-add-two-numbers.md" }
+          { "title": "Say Hello", "url": "03-functions/03-01-sayhello.md" },
+          { "title": "Merry Christmas", "url": "03-functions/03-02-merry-christmas.md" },
+          { "title": "Add Two Numbers", "url": "03-functions/03-03-add-two-numbers.md" },
+          { "title": "Division", "url": "03-functions/03-04-division.md" },
+          { "title": "Average of Three Numbers", "url": "03-functions/03-05-avg-of-three.md" },
+          { "title": "GST Calculator", "url": "03-functions/03-06-gst-calculator.md" }
         ]
       }
     ]

@@ -35,6 +35,9 @@ const parseQuestionContent = (content) => {
       case 'walkthrough':
         question.walkthrough = sectionContent;
         break;
+      case 'hints':
+        question.hints = sectionContent;
+        break;
     }
   }
 

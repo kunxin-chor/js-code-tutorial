@@ -48,8 +48,9 @@ function appReducer(state, action) {
     case 'SET_SHOW_SOLUTION':
       console.log("show solution");
       return { ...state, showSolution: action.payload };
-    case 'SET_SHOW_HINTS':
-      return { ...state, showHints: action.payload };
+    case 'TOGGLE_HINTS':
+      console.log("show hints");
+      return { ...state, showHints: !state.showHints };
     case 'SET_SHOW_WALKTHROUGH':
       return { ...state, showWalkthrough: action.payload };
     case 'SET_CODE_HAS_RUN':

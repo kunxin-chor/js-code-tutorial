@@ -51,11 +51,6 @@ The `greetUser` function demonstrates how to use the `prompt` function to get in
 1. It uses `prompt` to ask the user for their name.
 2. It then uses `console.log` to print a greeting message that includes the name.
 
-This exercise helps practice:
-- Using the `prompt` function for user input
-- String concatenation or template literals
-- Basic input/output operations
-
 ### Hints
 
 - Remember that `prompt` returns a string

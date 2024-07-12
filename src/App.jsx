@@ -89,7 +89,8 @@ const App = () => {
     // Include prompts in the results
     const resultsWithPrompts = currentQuestion.testCases.map((testCase, index) => ({
       ...results[index],
-      prompts: testCase.prompts
+      prompts: testCase.prompts,
+      name: testCase.name
     }));
     
     const newAttempts = progressTrackerService.incrementAttempts(currentQuestionId);
@@ -189,6 +190,7 @@ const App = () => {
               attemptsCount={state.attempts}
               allTestsPassed={state.allPassing}
               showSolutionThreshold={3}
+              hintsAvailable={!!state.currentQuestion?.hints}
             />
             <TestResults testResults={state.testResults} />
             {state.showHints && <HintsDisplay hints={state.currentQuestion.hints} />}

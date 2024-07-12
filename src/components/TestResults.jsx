@@ -18,7 +18,7 @@ const TestResults = ({ testResults }) => {
         <tbody>
           {testResults.map((result, index) => (
             <tr key={index}>
-              <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{result.func}</td>
+              <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{result.name || result.func}</td>
               <td style={{ padding: '10px', borderBottom: '1px solid #ddd', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                 {result.prompts ? result.prompts.join(', ') : 'N/A'}
               </td>

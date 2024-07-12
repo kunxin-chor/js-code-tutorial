@@ -10,7 +10,8 @@ const ActionButtons = ({
   isLastQuestion,
   attemptsCount,
   allTestsPassed,
-  showSolutionThreshold
+  showSolutionThreshold,
+  hintsAvailable // Add this prop to indicate if hints are available
 }) => {
   const canViewSolution = attemptsCount >= showSolutionThreshold || allTestsPassed;
   const remainingAttempts = Math.max(0, showSolutionThreshold - attemptsCount);
@@ -30,6 +31,22 @@ const ActionButtons = ({
         }}
       >
         Run Code
+      </button>
+      <button
+        onClick={onToggleHints}
+        disabled={!hintsAvailable}
+        style={{
+          padding: '10px 20px',
+          fontSize: '16px',
+          backgroundColor: '#FFA500',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: hintsAvailable ? 'pointer' : 'not-allowed',
+          opacity: hintsAvailable ? 1 : 0.5
+        }}
+      >
+        {hintsAvailable ? 'Show Hints' : 'No Hints Available'}
       </button>
       <button
         onClick={onToggleWalkthrough}
