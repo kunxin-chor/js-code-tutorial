@@ -25,8 +25,6 @@ This exercise will help you understand:
 // Your code here
 
 
-// Do not change the code here:
-console.log(totalDollars, totalCents);
 
 ---TESTCASES---
 [

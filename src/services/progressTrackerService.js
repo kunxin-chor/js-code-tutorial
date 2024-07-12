@@ -44,10 +44,15 @@ function getSavedTestResults(questionId) {
   return progress[questionId]?.testResults || null;
 }
 
+function setLastAttemptedQuestionId(questionId) {
+  const progress = loadProgress() || {};
+  progress.lastAttemptedQuestionId = questionId;
+  saveProgress(progress);
+}
+
 function getLastAttemptedQuestionId() {
   const progress = loadProgress() || {};
-  const attemptedQuestions = Object.keys(progress).filter(key => progress[key].code);
-  return attemptedQuestions.length > 0 ? attemptedQuestions[attemptedQuestions.length - 1] : null;
+  return progress.lastAttemptedQuestionId || null;
 }
 
 function saveAttempts(questionId, attempts) {
@@ -88,6 +93,7 @@ export const progressTrackerService = {
   getSavedCode,
   saveTestResults,
   getSavedTestResults,
+  setLastAttemptedQuestionId,
   getLastAttemptedQuestionId,
   saveAttempts,
   getAttempts,

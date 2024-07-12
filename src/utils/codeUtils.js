@@ -67,9 +67,18 @@ const runCode = (code, testCases) => {
 };
 
 const compareResults = (result, expected) => {
-  if (typeof result === 'string' && typeof expected === 'string') {
+  if (Array.isArray(result) && Array.isArray(expected)) {
+    // Compare arrays
+    return JSON.stringify(result) === JSON.stringify(expected);
+  } else if (typeof result === 'string' && typeof expected === 'string') {
     // Remove all whitespace, including newlines, before comparing
     return result.replace(/\s/g, '') === expected.replace(/\s/g, '');
+  } else if (typeof result === 'number' || typeof expected === 'number') {
+    // Convert both to numbers and compare with a small tolerance
+    const numResult = Number(result);
+    const numExpected = Number(expected);
+    const tolerance = 0.001; // Adjust this value as needed
+    return Math.abs(numResult - numExpected) < tolerance;
   } else {
     return result === expected;
   }

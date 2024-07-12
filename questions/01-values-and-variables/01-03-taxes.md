@@ -11,7 +11,6 @@ You need to:
 1. Create a variable `taxRate` and assign it the value 0.09 (9% expressed as a decimal)
 2. Create a variable `income` and assign it the value 450000
 3. Create a variable `totalPayment` and assign it the result of multiplying `income` by `taxRate`
-4. Use `console.log` to display the value of `totalPayment`
 
 This exercise will help you understand:
 - How to work with percentages in JavaScript

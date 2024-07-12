@@ -1,0 +1,51 @@
+{
+    "categories": [
+      {
+        "name": "Variables and Values",
+        "questions": [
+          { "title": "Basic Variables", "url": "01-values-and-variables/01-01-variables.md" },
+          { "title": "More Variables", "url": "01-values-and-variables/01-02-more.md" },
+          { "title": "Taxes", "url": "01-values-and-variables/01-03-taxes.md" },
+          { "title": "Muffins", "url": "01-values-and-variables/01-04-muffins.md" },
+          { "title": "Circle Area", "url": "01-values-and-variables/01-05-circle-area.md" },
+          { "title": "Temperature Conversion", "url": "01-values-and-variables/01-06-temperature-conversion.md" },
+          { "title": "Currency Exchange", "url": "01-values-and-variables/01-07-currency-exchange.md" }
+        ]
+      }, {
+        "name": "Operators",
+        "questions": [
+          { "title": "Product of Two Numbers", "url": "02-operators/02-01-product.md" },
+          { "title": "Calculate Age", "url": "02-operators/02-02-age.md" },
+          { "title": "Area of a Circle II", "url": "02-operators/02-03-area-of-circle.md" },
+          { "title": "Average of Four Numbers", "url": "02-operators/02-04-average-of-four-numbers.md" },
+          { "title": "Ticket Calculator", "url": "02-operators/02-05-ticket-calculator.md" },
+          { "title": "Muffin Cost Calculator", "url": "02-operators/02-06-muffin-cost-calculator.md" },
+          { "title": "Data Plan Cost Calculator", "url": "02-operators/02-07-data-plan-cost-calculator.md" }
+        ]
+      }, {
+        "name": "Functions",
+        "questions": [
+          { "title": "Say Hello", "url": "03-functions/03-01-sayhello.md" },
+          { "title": "Merry Christmas", "url": "03-functions/03-02-merry-christmas.md" },
+          { "title": "Add Two Numbers", "url": "03-functions/03-03-add-two-numbers.md" },
+          { "title": "Division", "url": "03-functions/03-04-division.md" },
+          { "title": "Average of Three Numbers", "url": "03-functions/03-05-avg-of-three.md" },
+          { "title": "GST Calculator", "url": "03-functions/03-06-gst-calculator.md" },
+          { "title": "Service Charge Calculator", "url": "03-functions/03-07-service-charge.md" },
+          { "title": "Temperature Converter", "url": "03-functions/03-08-converter.md" }
+        ]
+      },
+      {
+        "name":"Branching",
+        "questions": [
+          { "title": "Comparison Operators", "url": "04-branching/04-01-comparison.md" },
+          { "title": "Writing if/else", "url": "04-branching/04-02-if-else.md" },
+          { "title": "Pass or Fail", "url": "04-branching/04-03-pass-or-fail.md" },
+          { "title": "Even Or Odd", "url": "04-branching/04-04-even-or-odd.md"},
+          { "title": "Two Numbers", "url": "04-branching/04-06-two-numbers.md"},
+          
+
+        ]
+      }
+    ]
+  }

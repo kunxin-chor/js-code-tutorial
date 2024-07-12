@@ -1,37 +1,213 @@
 {
-    "categories": [
-      {
-        "name": "Variables and Values",
-        "questions": [
-          { "title": "Basic Variables", "url": "01-values-and-variables/01-01-variables.md" },
-          { "title": "More Variables", "url": "01-values-and-variables/01-02-more.md" },
-          { "title": "Taxes", "url": "01-values-and-variables/01-03-taxes.md" },
-          { "title": "Muffins", "url": "01-values-and-variables/01-04-muffins.md" },
-          { "title": "Circle Area", "url": "01-values-and-variables/01-05-circle-area.md" },
-          { "title": "Temperature Conversion", "url": "01-values-and-variables/01-06-temperature-conversion.md" },
-          { "title": "Currency Exchange", "url": "01-values-and-variables/01-07-currency-exchange.md" }
-        ]
-      }, {
-        "name": "Operators",
-        "questions": [
-          { "title": "Product of Two Numbers", "url": "02-operators/02-01-product.md" },
-          { "title": "Calculate Age", "url": "02-operators/02-02-age.md" },
-          { "title": "Area of a Circle II", "url": "02-operators/02-03-area-of-circle.md" },
-          { "title": "Average of Four Numbers", "url": "02-operators/02-04-average-of-four-numbers.md" },
-          { "title": "Ticket Calculator", "url": "02-operators/02-05-ticket-calculator.md" },
-          { "title": "Muffin Cost Calculator", "url": "02-operators/02-06-muffin-cost-calculator.md" },
-          { "title": "Data Plan Cost Calculator", "url": "02-operators/02-07-data-plan-cost-calculator.md" }
-        ]
-      }, {
-        "name": "Functions",
-        "questions": [
-          { "title": "Say Hello", "url": "03-functions/03-01-sayhello.md" },
-          { "title": "Merry Christmas", "url": "03-functions/03-02-merry-christmas.md" },
-          { "title": "Add Two Numbers", "url": "03-functions/03-03-add-two-numbers.md" },
-          { "title": "Division", "url": "03-functions/03-04-division.md" },
-          { "title": "Average of Three Numbers", "url": "03-functions/03-05-avg-of-three.md" },
-          { "title": "GST Calculator", "url": "03-functions/03-06-gst-calculator.md" }
-        ]
-      }
-    ]
-  }
+  "categories": [
+    {
+      "name": "01 Values And Variables",
+      "questions": [
+        {
+          "title": "01-01 Assigning a Value to a Variable",
+          "url": "01-values-and-variables/01-01-variables.md"
+        },
+        {
+          "title": "01-02 Working with Multiple Variable Types",
+          "url": "01-values-and-variables/01-02-more.md"
+        },
+        {
+          "title": "01-03 Calculating Tax Payment",
+          "url": "01-values-and-variables/01-03-taxes.md"
+        },
+        {
+          "title": "01-04 Calculating Total Cost of Muffins",
+          "url": "01-values-and-variables/01-04-muffins.md"
+        },
+        {
+          "title": "01-05 Calculating the Area of a Circle",
+          "url": "01-values-and-variables/01-05-circle-area.md"
+        },
+        {
+          "title": "01-06 Temperature Conversion",
+          "url": "01-values-and-variables/01-06-temperature-conversion.md"
+        },
+        {
+          "title": "01-07 Currency Exchange Calculator",
+          "url": "01-values-and-variables/01-07-currency-exchange.md"
+        }
+      ]
+    },
+    {
+      "name": "02 Operators",
+      "questions": [
+        {
+          "title": "02-01 Product of Two Numbers",
+          "url": "02-operators/02-01-product.md"
+        },
+        {
+          "title": "02-02 How Old Are You?",
+          "url": "02-operators/02-02-age.md"
+        },
+        {
+          "title": "02-03 Area of a Circle II",
+          "url": "02-operators/02-03-area-of-circle.md"
+        },
+        {
+          "title": "02-04 Average of Four Numbers",
+          "url": "02-operators/02-04-average-of-four-numbers.md"
+        },
+        {
+          "title": "02-05 Movie Ticket Calculator",
+          "url": "02-operators/02-05-ticket-calculator.md"
+        },
+        {
+          "title": "02-06 Muffin Cost Calculator",
+          "url": "02-operators/02-06-muffin-cost-calculator.md"
+        },
+        {
+          "title": "02-07 Data Plan Cost Calculator",
+          "url": "02-operators/02-07-data-plan-cost-calculator.md"
+        }
+      ]
+    },
+    {
+      "name": "03 Functions",
+      "questions": [
+        {
+          "title": "03-01 Say Hello",
+          "url": "03-functions/03-01-sayhello.md"
+        },
+        {
+          "title": "03-02 Merry Christmas",
+          "url": "03-functions/03-02-merry-christmas.md"
+        },
+        {
+          "title": "03-03 Add Two Numbers",
+          "url": "03-functions/03-03-add-two-numbers.md"
+        },
+        {
+          "title": "03-04 Division",
+          "url": "03-functions/03-04-division.md"
+        },
+        {
+          "title": "03-05 Average of Three Numbers",
+          "url": "03-functions/03-05-avg-of-three.md"
+        },
+        {
+          "title": "03-06 GST Calculator",
+          "url": "03-functions/03-06-gst-calculator.md"
+        },
+        {
+          "title": "03-07 Bill Calculator",
+          "url": "03-functions/03-07-service-charge.md"
+        },
+        {
+          "title": "03-08 Temperature Converter",
+          "url": "03-functions/03-08-converter.md"
+        }
+      ]
+    },
+    {
+      "name": "04 Branching",
+      "questions": [
+        {
+          "title": "04-01 Comparison Operators",
+          "url": "04-branching/04-01-comparison.md"
+        },
+        {
+          "title": "04-02 If/Else Statement Practice",
+          "url": "04-branching/04-02-if-else.md"
+        },
+        {
+          "title": "04-03 Pass or Fail",
+          "url": "04-branching/04-03-pass-or-fail.md"
+        },
+        {
+          "title": "04-04 Even or Odd",
+          "url": "04-branching/04-04-even-or-odd.md"
+        },
+        {
+          "title": "04-05 Is It Positive?",
+          "url": "04-branching/04-05-pos-neg-or-zero.md"
+        },
+        {
+          "title": "04-06 Two Numbers",
+          "url": "04-branching/04-06-two-numbers.md"
+        },
+        {
+          "title": "04-07 PSI Levels",
+          "url": "04-branching/04-07-psi-level.md"
+        },
+        {
+          "title": "04-08 Test Grader",
+          "url": "04-branching/04-08-grader.md"
+        },
+        {
+          "title": "04-09 The Largest Number",
+          "url": "04-branching/04-09-largest-number.md"
+        },
+        {
+          "title": "04-10 Count the Positives",
+          "url": "04-branching/04-10-count-the-positive.md"
+        }
+      ]
+    },
+    {
+      "name": "05 Arrays",
+      "questions": [
+        {
+          "title": "05-01 Define an Array",
+          "url": "05-arrays/05-01-define-array.md"
+        },
+        {
+          "title": "05-02 Access Array Elements",
+          "url": "05-arrays/05-02-array-access.md"
+        },
+        {
+          "title": "05-03 Define an Array of Mixed Types",
+          "url": "05-arrays/05-03-define-mixed-array.md"
+        },
+        {
+          "title": "05-04 Define a Nested Array",
+          "url": "05-arrays/05-04-nested-array.md"
+        },
+        {
+          "title": "05-05 Add Two Elements of an Array",
+          "url": "05-arrays/05-05-add-two-elements.md"
+        },
+        {
+          "title": "05-06 Push Elements to an Array",
+          "url": "05-arrays/05-06-array-push.md"
+        },
+        {
+          "title": "05-07 Using Slice on an Array",
+          "url": "05-arrays/05-07-array-slice.md"
+        },
+        {
+          "title": "05-08 Using Splice on an Array",
+          "url": "05-arrays/05-08-array-splice.md"
+        },
+        {
+          "title": "05-09 Check if an Array is Not Empty",
+          "url": "05-arrays/05-09-check-non-empty-array.md"
+        },
+        {
+          "title": "05-10 Get the Last Element of an Array",
+          "url": "05-arrays/05-10-get-last-element.md"
+        },
+        {
+          "title": "05-11 Get the Second Last Element of an Array",
+          "url": "05-arrays/05-11-get-second-last-element.md"
+        },
+        {
+          "title": "05-12 Iterating Through an Array",
+          "url": "05-arrays/05-12-array-iteration.md"
+        },
+        {
+          "title": "05-13 Recreate the Slice Function",
+          "url": "05-arrays/05-13-recreate-slice.md"
+        },
+        {
+          "title": "05-14 Add Elements of Two Arrays",
+          "url": "05-arrays/05-14-add-arrays.md"
+        }
+      ]
+    }
+  ]
+}

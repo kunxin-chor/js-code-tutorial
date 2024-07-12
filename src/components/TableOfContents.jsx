@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { progressTrackerService } from '../services/progressTrackerService';
 
 const TableOfContents = ({ manifest, currentQuestionId, userProgress, selectQuestion }) => {
   const [userExpandedCategories, setUserExpandedCategories] = useState({});
@@ -35,6 +36,11 @@ const TableOfContents = ({ manifest, currentQuestionId, userProgress, selectQues
       ? userExpandedCategories[categoryName]
       : (currentCategory && currentCategory.name === categoryName);
   }, [userExpandedCategories, currentCategory]);
+
+  const handleQuestionClick = useCallback((questionId) => {
+    progressTrackerService.setLastAttemptedQuestionId(questionId);
+    selectQuestion(questionId);
+  }, [selectQuestion]);
 
   if (!manifest) return null;
 
@@ -75,7 +81,7 @@ const TableOfContents = ({ manifest, currentQuestionId, userProgress, selectQues
                     alignItems: 'center',
                     justifyContent: 'space-between'
                   }}
-                  onClick={() => selectQuestion(question.id)}
+                  onClick={() => handleQuestionClick(question.id)}
                 >
                   <span>{question.title || 'Untitled Question'}</span>
                   {isQuestionCompleted(question.id) && (
