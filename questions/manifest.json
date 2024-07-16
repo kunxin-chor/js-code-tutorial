@@ -208,6 +208,128 @@
           "url": "05-arrays/05-14-add-arrays.md"
         }
       ]
+    },
+    {
+      "name": "06 Objects",
+      "questions": [
+        {
+          "title": "06-01 Changing Object",
+          "url": "06-objects/06-01-changing-object.md"
+        },
+        {
+          "title": "06-02 Changing Object II",
+          "url": "06-objects/06-02-changing-object-ii.md"
+        },
+        {
+          "title": "06-03 Creating an Object",
+          "url": "06-objects/06-03--creating-an-object.md"
+        },
+        {
+          "title": "06-04 Creating an Object II",
+          "url": "06-objects/06-04-creating-an-object-ii.md"
+        },
+        {
+          "title": "06-05 Object Checker",
+          "url": "06-objects/06-05-object-checker.md"
+        },
+        {
+          "title": "06-07 Object Property Checker",
+          "url": "06-objects/06-07-object-property-checker.md"
+        },
+        {
+          "title": "06-08 Display Values",
+          "url": "06-objects/06-08-display-values.md"
+        },
+        {
+          "title": "06-09 Values Array",
+          "url": "06-objects/06-09-values-array.md"
+        },
+        {
+          "title": "06-10 Even Values",
+          "url": "06-objects/06-10-even-values.md"
+        }  
+      ]
+    },
+    {
+      "name": "07 Strings",
+      "questions": [
+        {
+          "title": "07-01 What Letter",
+          "url": "07-strings/07-01-what-letter.md"
+        },
+        {
+          "title": "07-02 The Fifth Index",
+          "url": "07-strings/07-02-the-fifth-index.md"
+        },
+        {
+          "title": "07-03 Index X String",
+          "url": "07-strings/07-03-index-x-string.md"
+        },
+        {
+          "title": "07-04 All Upper",
+          "url": "07-strings/07-04-all-upper.md"
+        },
+        {
+          "title": "07-05 Get Low",
+          "url": "07-strings/07-05-get-low.md"
+        },
+        {
+          "title": "07-06 Are We The Same",
+          "url": "07-strings/07-06-are-we-the-same.md"
+        },
+        {
+          "title": "07-07 About A String",
+          "url": "07-strings/07-07-about-a-string.md"
+        },
+        {
+          "title": "07-08 Part of Your String",
+          "url": "07-strings/07-08-part-of-your-string.md"
+        },
+        {
+          "title": "07-09 Substring",
+          "url": "07-strings/07-09-substring.md"
+        },
+        {
+          "title": "07-10 Replacement",
+          "url": "07-strings/07-10-replacement.md"
+        },
+        {
+          "title": "07-11 Without the First",
+          "url": "07-strings/07-11-without-the-first.md"
+        },
+        {
+          "title": "07-12 Without the Last",
+          "url": "07-strings/07-12-without-the-last.md"
+        },
+        {
+          "title": "07-13 Just the Middle",
+          "url": "07-strings/07-13-just-the-middle.md"
+        },
+        {
+          "title": "07-14 First 'a'",
+          "url": "07-strings/07-14-first-a.md"
+        },
+        {
+          "title": "07-15 Just the Extension",
+          "url": "07-strings/07-15-just-the-extension.md"
+        },
+        {
+          "title": "07-16 Extensions",
+          "url": "07-strings/07-16-extensions.md"
+        },
+        {
+          "title": "07-17 Remove Vowels",
+          "url": "07-strings/07-17-remove-vowels.md"
+        },
+        {
+          "title": "07-18 Character Check",
+          "url": "07-strings/07-18-character-check.md"
+        },
+        {
+          "title": "07-19 Alternate Case",
+          "url": "07-strings/07-19-alternate-case.md"
+        }
+      ]
     }
   ]
 }

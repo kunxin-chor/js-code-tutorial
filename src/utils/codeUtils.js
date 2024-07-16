@@ -70,16 +70,23 @@ const compareResults = (result, expected) => {
   if (Array.isArray(result) && Array.isArray(expected)) {
     // Compare arrays
     return JSON.stringify(result) === JSON.stringify(expected);
+  } else if (typeof result === 'object' && result !== null && typeof expected === 'object' && expected !== null) {
+    // Compare objects
+    const resultKeys = Object.keys(result);
+    const expectedKeys = Object.keys(expected);
+    if (resultKeys.length !== expectedKeys.length) return false;
+    return resultKeys.every(key => compareResults(result[key], expected[key]));
   } else if (typeof result === 'string' && typeof expected === 'string') {
-    // Remove all whitespace, including newlines, before comparing
+    // Compare strings (unchanged)
     return result.replace(/\s/g, '') === expected.replace(/\s/g, '');
   } else if (typeof result === 'number' || typeof expected === 'number') {
-    // Convert both to numbers and compare with a small tolerance
+    // Compare numbers (unchanged)
     const numResult = Number(result);
     const numExpected = Number(expected);
-    const tolerance = 0.001; // Adjust this value as needed
+    const tolerance = 0.001;
     return Math.abs(numResult - numExpected) < tolerance;
   } else {
+    // Compare other types
     return result === expected;
   }
 };
