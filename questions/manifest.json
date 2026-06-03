@@ -330,6 +330,67 @@
           "url": "07-strings/07-19-alternate-case.md"
         }
       ]
+    },
+    {
+      "name": "08 Revision",
+      "questions": [
+        {
+          "title": "08-01 Rectangle Area and Perimeter",
+          "url": "08-revision/08-01-rectangle.md"
+        },
+        {
+          "title": "08-02 BMI Calculator",
+          "url": "08-revision/08-02-bmi.md"
+        },
+        {
+          "title": "08-03 Leap Year Checker",
+          "url": "08-revision/08-03-leap-year.md"
+        },
+        {
+          "title": "08-04 Grade Letter",
+          "url": "08-revision/08-04-grade-letter.md"
+        },
+        {
+          "title": "08-05 Sum of Even Numbers",
+          "url": "08-revision/08-05-sum-even.md"
+        },
+        {
+          "title": "08-06 Find Maximum",
+          "url": "08-revision/08-06-find-max.md"
+        },
+        {
+          "title": "08-07 Count Occurrences",
+          "url": "08-revision/08-07-count-occurrences.md"
+        },
+        {
+          "title": "08-08 Describe Person",
+          "url": "08-revision/08-08-describe-person.md"
+        },
+        {
+          "title": "08-09 Sum Object Values",
+          "url": "08-revision/08-09-sum-object-values.md"
+        },
+        {
+          "title": "08-10 Reverse a String",
+          "url": "08-revision/08-10-reverse-string.md"
+        },
+        {
+          "title": "08-11 Count Vowels",
+          "url": "08-revision/08-11-count-vowels.md"
+        },
+        {
+          "title": "08-12 Filter Adult Names",
+          "url": "08-revision/08-12-filter-adults.md"
+        },
+        {
+          "title": "08-13 Mini App: Shopping Cart Total",
+          "url": "08-revision/08-13-shopping-cart.md"
+        },
+        {
+          "title": "08-14 Mini App: Student Report Card",
+          "url": "08-revision/08-14-student-report.md"
+        }
+      ]
     }
   ]
 }
